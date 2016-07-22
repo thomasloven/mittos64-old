@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+
+# This file should be sourced before building mittos64:
+# $ source ./activate
+
+export MITTOS64=mittos64
+. util/helpers.sh
+
+export BUILDROOT=`pwd`
+export TOOLCHAIN=${BUILDROOT}/toolchain
+export PATH=${TOOLCHAIN}/bin:${PATH}
+export TARGET=x86_64-elf
+
+# shortcuts for some useful tools
+alias dbg="x86_64-elf-linux-gdb"
+alias objd="${TARGET}-objdump"
+function decomp()
+{
+  ${TARGET}-objdump -S $1 | vim - -R
+}
+
+export PS1="(mittos64)${PS1}"
+
+util/build_toolchain.sh -c || util/build_toolchain.sh
