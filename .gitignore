@@ -3,3 +3,5 @@ sysroot/
 *.iso
 *.img
 *.log
+kernel/obj/
+tags
