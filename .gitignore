@@ -1,1 +1,5 @@
 toolchain/
+sysroot/
+*.iso
+*.img
+*.log

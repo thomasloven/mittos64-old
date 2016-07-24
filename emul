@@ -1,0 +1,93 @@
+#!/usr/bin/env bash
+
+if [[ -z ${TOOLCHAIN+x} ]]; then
+  echo TOOLCHAIN is not set. Please source activate
+  exit 1
+fi
+
+function print_help() {
+  cat << EOF
+emul [-gvdh]
+
+  Runs emulator
+
+  -g
+    Run with graphics window
+    Can also be invoked by setting EMULGFX
+  -v
+    Run in vnc mode
+    Can also be invoked by setting EMULVNC
+    Open a listening client to port 5909 to connect
+  -d
+    DON'T run gdb debugger
+    Can also be invoked by setting EMULNDEBUG
+  -h
+    Display help message
+EOF
+}
+
+function main() {
+
+  EMULGFX="${EMULGFX+x}"
+  EMULVNC="${EMULVNC+x}"
+  EMULNDEBUG="${EMULNDEBUG+x}"
+
+  local monitorwin=""
+
+  while getopts "gvdh" OPTION; do
+    case ${OPTION} in
+      g)
+        readonly EMULGFX=1
+        ;;
+      v)
+        readonly EMULVNC=1
+        ;;
+      d)
+        readonly EMULNDEBUG=1
+        ;;
+      h)
+        print_help
+        exit 0
+        ;;
+    esac
+  done
+
+  [[ $1 = "--" ]] && shift
+  EMULPARAM=("$@")
+
+  make all || exit 1
+  util/build_iso.sh || exit 1
+  emulator="qemu-system-x86_64 -cdrom mittos64.iso ${EMULPARAM[@]}"
+  debugger=$(which x86_64-elf-linux-gdb)
+
+  if [[ (-n ${EMULVNC}) ]]; then
+    # A bug in qemu means the reverse port does not work as written in the man pages
+    # :X,reverse will open a reverse connection on DISPLAY X, not PORT X
+    # i.e. PORT 5900+X
+    emulator="${emulator} -vnc :9,reverse"
+  fi
+
+  if [[ (-n ${EMULVNC}) || (-n ${EMULGFX}) ]]; then
+    emulator="${emulator} -monitor stdio"
+  fi
+
+  if [[ (-z ${EMULNDEBUG}) ]]; then
+    emulator="${emulator} -s -S"
+  fi
+
+  if [[ (-z ${EMULVNC}) && (-z ${EMULGFX}) && (-n "${TMUX+x}") ]]; then
+    emulator="${emulator} -curses"
+  fi
+
+  if [[ -n "${TMUX}" ]]; then
+    emulwindow=`tmux new-window -P -n "osdevemul" "${emulator} 2>qemu-error.log; tmux kill-window -t osdevemul"`
+    if [[ -z ${EMULDEBUG} ]]; then
+      debugpane=`tmux split-window -P -h -t ${emulwindow} "sleep 1; ${debugger}"`
+    fi
+  else
+    ${emulator}
+  fi
+
+}
+
+main "${@}"
