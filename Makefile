@@ -25,3 +25,4 @@ clean:
 	$(MAKE) -C kernel clean
 	rm -f mittos64.iso
 	rm -f qemu-error.log
+	rm -f serial.log

@@ -1,34 +1,22 @@
-#include <mem.h>
-
-#define VGA_MEMORY 0xb8000
-#define VGA_ROWS 24
-#define VGA_COLS 80
-
-void clear_screen()
-{
-  // Clear the video memory
-  unsigned char *m = (void *)P2V(VGA_MEMORY);
-  for(int i = 0; i < VGA_ROWS*VGA_COLS*2; i++)
-  {
-    *m++ = 0;
-  }
-}
-
-void prints(const char *s, unsigned int row, unsigned int col)
-{
-  // Very simple pure ascii string printing
-  unsigned char *m = (void *)P2V(VGA_MEMORY);
-  m += 2*VGA_COLS*row+2*col;
-  while(*s)
-  {
-    *m++ = *s++;
-    *m++ = 0x7;
-  }
-}
+#include <debug.h>
 
 int kmain(void)
 {
-  clear_screen();
-  prints("Hello, world!", 0, 0);
+  debug_init();
+  debug_ok("MITTOS64 kernel booted\n");
+  debug_build_time();
+  debug_git_info();
+
+  // Test the printf functions
+  debug("binary:%b octal:%o dec:%d\n", 0xAA55, 0123, 456);
+  debug("hex:%x string:%s char:%c\n", 0xabcd, "Hello", 'T');
+  debug("pointer:%x\n", kmain);
+
+  debug_info("An information string\n");
+  debug_ok("%s prints ok\n", "This string");
+  debug_warning("A warning message\n");
+  debug_error("%d is less than %x\n", 12, 17);
+
+  debug_info("BOOT COMPLETE\n");
   for(;;)asm("hlt");
 }

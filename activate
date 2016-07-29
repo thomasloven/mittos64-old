@@ -19,6 +19,7 @@ function decomp()
 {
   ${TARGET}-objdump -S $1 | vim - -R
 }
+alias viewlog="cat serial.log | ${BUILDROOT}/util/colorize.sh"
 
 export PS1="(mittos64)${PS1}"
 

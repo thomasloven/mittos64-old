@@ -57,7 +57,8 @@ function main() {
 
   make all || exit 1
   util/build_iso.sh || exit 1
-  emulator="qemu-system-x86_64 -cdrom mittos64.iso ${EMULPARAM[@]}"
+  echo > serial.log
+  emulator="qemu-system-x86_64 -cdrom mittos64.iso -serial file:serial.log ${EMULPARAM[@]}"
   debugger=$(which x86_64-elf-linux-gdb)
 
   if [[ (-n ${EMULVNC}) ]]; then
@@ -81,9 +82,11 @@ function main() {
 
   if [[ -n "${TMUX}" ]]; then
     emulwindow=`tmux new-window -P -n "osdevemul" "${emulator} 2>qemu-error.log; tmux kill-window -t osdevemul"`
-    if [[ -z ${EMULDEBUG} ]]; then
+    if [[ -z ${EMULNDEBUG} ]]; then
       debugpane=`tmux split-window -P -h -t ${emulwindow} "sleep 1; ${debugger}"`
     fi
+    serialpane=`tmux split-window -P -v -t ${emulwindow} "tail -f serial.log | util/colorize.sh"`
+    tmux select-pane -l
   else
     ${emulator}
   fi

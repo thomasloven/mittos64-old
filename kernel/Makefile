@@ -15,6 +15,8 @@ KERNEL_OBJS := $(addprefix obj/,$(patsubst %,%.o,$(basename $(KERNEL_SRC))))
 
 # Kernel object file
 KERNEL := obj/boot/kernel
+# Special file for keeping git information up to date
+VERSION_OBJ := obj/boot/version.o
 
 
 # Default compilation flags
@@ -41,10 +43,25 @@ $(KERNEL_OBJS): | $(OBJ_DIRS)
 $(OBJ_DIRS):
 	mkdir -p $@
 
+# Git status flags for the version file
+GITHASH := $(shell git log -1 --pretty="tformat:%h")
+GITDATE := $(shell git log -1 --pretty="tformat:%cd")
+GITDIRTY := $(shell git status -s >/dev/null 2>/dev/null && echo 1 || echo 0)
+GITMESSAGE := $(shell git log -1 --pretty="tformat:%s")
+GITBRANCH := $(shell git log -1 --pretty="tformat:%d")
+GITFLAGS := -DGITHASH='"$(GITHASH)"' \
+	-DGITDATE='"$(GITDATE)"' \
+	-DGITDIRTY='$(GITDIRTY)' \
+	-DGITMESSAGE='"$(GITMESSAGE)"' \
+	-DGITBRANCH='"$(GITBRANCH)"'
+$(VERSION_OBJ): CFLAGS += $(GITFLAGS)
+
 # The kernel needs some special flags
 $(KERNEL): LDFLAGS += -n -nostdlib -T Link.ld
 $(KERNEL): LDLIBS := -lgcc
 $(KERNEL): $(KERNEL_OBJS)
+	rm -rf $(VERSION_OBJ)
+	$(MAKE) $(VERSION_OBJ)
 	$(LINK.c) $^ -o $@
 
 # Use the default make compilation rules
