@@ -1,6 +1,7 @@
 #pragma once
 
 #define KERNEL_OFFSET 0xFFFFFF8000000000
+#define KERNEL_HEAP_S 0xFFFFFFC000000000
 
 #ifdef __ASSEMBLER__
   #define V2P(a) ((a) - KERNEL_OFFSET)
@@ -37,6 +38,8 @@
 #define   PAGE_GLOBAL         0x100
 
 #ifndef __ASSEMBLER__
+#include <stddef.h>
+
 typedef void * page_table;
 extern page_table BootP4;
 
@@ -54,4 +57,10 @@ void vmm_set_P4(page_table *P4);
 void vmm_free_P4(page_table *P4);
 uintptr_t vmm_get_page(page_table *P4, uintptr_t addr);
 uintptr_t vmm_set_page(page_table *P4, uintptr_t addr, uintptr_t phys, uint32_t flags);
+
+void kfree(void *a);
+void *kmalloc(size_t size);
+void *kcalloc(size_t count, size_t size);
+void *krealloc(void *ptr, size_t size);
+void heap_print();
 #endif
