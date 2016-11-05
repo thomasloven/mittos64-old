@@ -3,6 +3,7 @@
 #include <debug.h>
 #include <int.h>
 #include <registers.h>
+#include <thread.h>
 
 
 #define STRIP_FLAGS(addr) ((void *)(((uintptr_t)(addr)) & ~PAGE_FLAGS_MASK))
@@ -142,6 +143,8 @@ registers_t *page_fault_handler(registers_t *r)
   print_registers(r);
 
 #ifndef NDEBUG
+  thread_t *th = get_current_thread();
+  (void)th;
   asm("page_fault_breakpoint:");
 #endif
   for(;;);

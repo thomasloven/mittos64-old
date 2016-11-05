@@ -3,6 +3,7 @@
 #include <registers.h>
 #include <string.h>
 #include <stdint.h>
+#include <thread.h>
 
 struct int_gate_descriptor idt[NUM_INTERRUPTS];
 struct idtr idtr;
@@ -60,6 +61,8 @@ registers_t *int_handler(registers_t *r)
   print_registers(r);
 
 #ifndef NDEBUG
+  thread_t *th = get_current_thread();
+  (void)th;
   asm("int_handler_breakpoint:");
 #endif
 
