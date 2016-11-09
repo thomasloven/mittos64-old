@@ -29,6 +29,7 @@ int kmain(uint64_t multiboot_magic, void *multiboot_data)
   pmm_init();
   gdt_init();
   scheduler_init();
+  pic_init();
 
   process_t *p1 = process_spawn(0);
   process_t *p2 = process_spawn(p1);
@@ -51,6 +52,8 @@ int kmain(uint64_t multiboot_magic, void *multiboot_data)
   scheduler_insert(t2);
   scheduler_insert(t3);
 
+  IRQ_UNMASK(IRQ_TIMER);
+  asm("sti");
   debug_info("BOOT COMPLETE\n");
   schedule();
   debug_error("PANIC - This line should be unreachable (%s:%d)\n", __FILE__, __LINE__);

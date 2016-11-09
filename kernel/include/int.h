@@ -33,6 +33,30 @@
 #define   INT_SX    0x1E // Security exception
 // Unused exception 0x1F
 // User interrupts  0x20 and forward
+#define   INT_IRQ0      0x20
+#define   INT_IRQ1      0x21
+#define   INT_IRQ2      0x22
+#define   INT_IRQ3      0x23
+#define   INT_IRQ4      0x24
+#define   INT_IRQ5      0x25
+#define   INT_IRQ6      0x26
+#define   INT_IRQ7      0x27
+#define   INT_IRQ8      0x28
+#define   INT_IRQ9      0x29
+#define   INT_IRQ10     0x2A
+#define   INT_IRQ11     0x2B
+#define   INT_IRQ12     0x2C
+#define   INT_IRQ13     0x2D
+#define   INT_IRQ14     0x2E
+#define   INT_IRQ15     0x2F
+#define   INT_IRQ16     0x30
+#define   INT_IRQ17     0x31
+#define   INT_IRQ18     0x32
+#define   INT_IRQ19     0x33
+#define   INT_IRQ20     0x34
+#define   INT_IRQ21     0x35
+#define   INT_IRQ22     0x36
+#define   INT_IRQ23     0x37
 
 #ifndef __ASSEMBLER__
 #include <stdint.h>
@@ -53,6 +77,19 @@ struct idtr
   uint16_t len;
   uint64_t addr;
 } __attribute__ ((packed));
+
+void pic_init();
+void pic_ack(uint8_t irq);
+void pic_mask(uint8_t irq);
+void pic_unmask(uint8_t irq);
+#define IRQ_INT(irq) (INT_IRQ0 + irq)
+#define IRQ(irq) (irq)
+#define IRQ_MASK(irq) pic_mask(irq)
+#define IRQ_UNMASK(irq) pic_unmask(irq)
+#define IRQ_ACK(irq) pic_ack(irq)
+
+#define IRQ_TIMER 0
+#define IRQ_KEYBOARD 1
 
 typedef struct registers_st
 {
