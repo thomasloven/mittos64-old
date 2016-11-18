@@ -6,9 +6,13 @@
 #include <vga.h>
 #include <serial.h>
 #include <registers.h>
+#include <cpu.h>
+
+lock_t debug_lock;
 
 void debug_init()
 {
+  spin_unlock(&debug_lock);
   vga_init();
   serial_init(PORT_COM1);
 }

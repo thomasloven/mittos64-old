@@ -30,25 +30,23 @@ int kmain(uint64_t multiboot_magic, void *multiboot_data)
   pit_init();
 
   process_t *p1 = process_spawn(0);
-  process_t *p2 = process_spawn(p1);
 
   thread_t *t1 = new_thread(thread_function);
-  thread_t *t2 = new_thread(thread_function);
-  thread_t *t3 = new_thread(thread_function);
-
   process_attach(p1, t1);
-  process_attach(p2, t2);
-  process_attach(p1, t3);
-
-  vmm_set_page(p1->P4, 0x10000, pmm_alloc(), PAGE_PRESENT | PAGE_WRITE);
-  vmm_set_page(p2->P4, 0x10000, pmm_alloc(), PAGE_PRESENT | PAGE_WRITE);
-
-  vmm_p4_memcpy(p1->P4, (void *)0x10000, 0, "Hello, 1", 9);
-  vmm_p4_memcpy(p2->P4, (void *)0x10000, 0, "Hello, 2", 9);
 
   scheduler_insert(t1);
-  scheduler_insert(t2);
-  scheduler_insert(t3);
+  t1 = new_thread(thread_function);
+  process_attach(p1, t1);
+  scheduler_insert(t1);
+  t1 = new_thread(thread_function);
+  process_attach(p1, t1);
+  scheduler_insert(t1);
+  t1 = new_thread(thread_function);
+  process_attach(p1, t1);
+  scheduler_insert(t1);
+  t1 = new_thread(thread_function);
+  process_attach(p1, t1);
+  scheduler_insert(t1);
 
   asm("sti");
   debug_info("BOOT COMPLETE\n");

@@ -3,6 +3,8 @@
 #include <debug.h>
 #include <sse.h>
 #include <apic.h>
+#include <sync.h>
+#include <debug.h>
 
 LIST(thread_t, ready_queue);
 
@@ -11,29 +13,37 @@ thread_t *scheduler_th;
 #define set_last_thread(new) (get_cpu()->last_thread = (new))
 
 int scheduler_started = 0;
+lock_t scheduler_lock = 0;
 
 void scheduler_insert(thread_t *th)
 {
   // Append thread to the ready queue and prepare it for running
+  spin_lock(&scheduler_lock);
   LIST_APPEND(ready_queue, th, ready_queue);
   th->state = THREAD_STATE_READY;
+  spin_unlock(&scheduler_lock);
 }
 
 void scheduler_remove(thread_t *th)
 {
   // Remove thread from the ready queue
+  spin_lock(&scheduler_lock);
   LIST_REMOVE(ready_queue, th, ready_queue);
+  spin_unlock(&scheduler_lock);
 }
 
 thread_t *scheduler_next()
 {
   // Get the next thread from the ready queue
+  spin_lock(&scheduler_lock);
   if(!LIST_EMPTY(ready_queue))
   {
     thread_t *th = LIST_FIRST(ready_queue);
-    scheduler_remove(th);
+    LIST_REMOVE(ready_queue, th, ready_queue);
+    spin_unlock(&scheduler_lock);
     return th;
   }
+  spin_unlock(&scheduler_lock);
   return 0;
 }
 

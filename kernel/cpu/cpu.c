@@ -62,7 +62,9 @@ void cpu_init()
   all_ap_started = 1;
 
   vmm_set_page(0, TRAMPOLINE_ADDR, 0, 0);
-  pmm_free(page);
+  // Keep the GDT mapped for now
+  /* vmm_set_page(0, TRAMPOLINE_GDT, 0, 0); */
+  /* pmm_free(page); */
 
   debug_info("CPU - Status\n");
   for(unsigned int i = 0; i < num_cpu; i++)

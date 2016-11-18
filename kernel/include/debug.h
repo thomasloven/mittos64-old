@@ -1,9 +1,10 @@
 #pragma once
 #include <string.h>
 #include <int.h>
+#include <sync.h>
 
 #ifndef NDEBUG
-  #define debug(...) debug_printf(__VA_ARGS__)
+  #define debug(...) ({spin_lock(&debug_lock);debug_printf(__VA_ARGS__);spin_unlock(&debug_lock);})
 #else
   #define debug(...) ((void)0)
 #endif
@@ -11,6 +12,8 @@
 #define debug_ok(...) do{debug("[OK] ");debug(__VA_ARGS__);}while(0)
 #define debug_warning(...) do{debug("[WARNING] ");debug(__VA_ARGS__);}while(0)
 #define debug_error(...) do{debug("[ERROR] ");debug(__VA_ARGS__);}while(0)
+
+extern lock_t debug_lock;
 
 void debug_init();
 void debug_putch(char c);

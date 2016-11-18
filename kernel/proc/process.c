@@ -2,6 +2,7 @@
 #include <thread.h>
 #include <debug.h>
 #include <scheduler.h>
+#include <sync.h>
 
 uint64_t pid = 1;
 process_t *init_proc = 0;
@@ -20,7 +21,9 @@ process_t *process_spawn(process_t *parent)
 
   if(parent)
   {
+    spin_lock(&parent->lock);
     LIST_APPEND(parent->children, proc, siblings);
+    spin_unlock(&parent->lock);
   }
 
   if(proc->pid == 1)
@@ -31,8 +34,10 @@ process_t *process_spawn(process_t *parent)
 
 void process_attach(process_t *proc, thread_t *th)
 {
+  spin_lock(&proc->lock);
   LIST_APPEND(proc->threads, th, process_threads);
   th->process = proc;
+  spin_unlock(&proc->lock);
 }
 
 void switch_process(process_t *proc)
@@ -60,6 +65,7 @@ void switch_process(process_t *proc)
 
 void process_exit(process_t *proc, uint64_t status)
 {
+  spin_lock(&proc->lock);
   proc->status = status;
   LIST_FOREACH(proc->children, process_t, c, siblings)
   {
@@ -69,6 +75,7 @@ void process_exit(process_t *proc, uint64_t status)
     LIST_APPEND(init_proc->children, c, siblings);
   }
   proc->state = PROC_STATE_ZOMBIE;
+  spin_unlock(&proc->lock);
 }
 
 void process_free(process_t *proc)

@@ -20,6 +20,7 @@
 #include <gdt.h>
 #include <process.h>
 #include <thread.h>
+#include <scheduler.h>
 
 typedef struct cpu_t
 {
@@ -51,6 +52,7 @@ void ap_init(cpu_t *cpu);
 
 void trampoline();
 void trampoline_GDT();
+
 #endif
 
 

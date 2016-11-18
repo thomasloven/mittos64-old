@@ -49,5 +49,7 @@ void ap_start()
   while(!all_ap_started);
   cpu_t *cpu = get_cpu();
   debug_ok("STARTED CPU:%x\n", cpu->id);
+  schedule();
+  debug_error("PANIC: SMP - This line should be unreachable\n");
   for(;;)asm("hlt");
 }

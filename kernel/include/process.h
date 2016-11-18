@@ -4,12 +4,14 @@ typedef struct process_st process_t;
 #include <thread.h>
 #include <mem.h>
 #include <cpu.h>
+#include <sync.h>
 
 typedef struct process_st
 {
   uint64_t pid;
   uint64_t state;
   uint64_t status;
+  lock_t lock;
   struct process_st *parent;
   page_table *P4;
   LIST(struct process_st, children);

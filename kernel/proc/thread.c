@@ -8,7 +8,6 @@
 
 uint64_t tid = 1;
 
-
 thread_t *new_thread(void (*func)(void))
 {
   // Set up original stack of thread
