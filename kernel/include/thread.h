@@ -3,11 +3,13 @@ typedef struct thread_st thread_t;
 #include <stdint.h>
 #include <list.h>
 #include <process.h>
+#include <int.h>
 
 #define THREAD_STACK_SIZE 0x1000-sizeof(thread_t)
 
 typedef struct thread_st
 {
+  registers_t r;
   uint64_t stack_pointer; // Top of the kernel stack for thread
   uint64_t tid;
   uint64_t state;
@@ -32,6 +34,7 @@ typedef struct thread_stack_st
   uint64_t R13;
   uint64_t R14;
   uint64_t R15;
+  uint64_t thread;
   uint64_t zero_frame;
   uint64_t function_address;
   thread_t tcb;

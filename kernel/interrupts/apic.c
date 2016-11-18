@@ -3,6 +3,7 @@
 #include <msr.h>
 #include <debug.h>
 #include <mem.h>
+#include <scheduler.h>
 
 #define APIC_MSR_ENABLE 0x800
 
@@ -62,8 +63,7 @@ registers_t *apic_timer_handler(registers_t *r)
 {
   // APIC timer timeout occurred
   APIC(R_EOI) = 0;
-  debug_putch('-');
-  apic_timer(1000000);
+  schedule();
   return r;
 }
 void apic_timer(uint64_t us)
@@ -112,6 +112,4 @@ void apic_init()
 
   // Register temporary timer handler to go off every 10 ms
   register_int_handler(INT_APIC_TIMER, apic_timer_handler);
-
-  apic_timer(1000000);
 }

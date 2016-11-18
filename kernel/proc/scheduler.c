@@ -2,6 +2,7 @@
 #include <list.h>
 #include <debug.h>
 #include <sse.h>
+#include <apic.h>
 
 LIST(thread_t, ready_queue);
 
@@ -39,6 +40,7 @@ void scheduler()
 {
   while(1)
   {
+    apic_timer_stop();
     thread_t *old = 0, *new = 0;
     if((old = get_last_thread()))
     {
@@ -51,7 +53,8 @@ void scheduler()
       }
     }
 
-    while(!(new = scheduler_next()));
+    while(!(new = scheduler_next()))asm("sti");
+    asm("cli");
 
     if(!process_alive(new->process))
     {
@@ -62,6 +65,7 @@ void scheduler()
     set_last_thread(new);
     switch_process(new->process);
     sse_restore(new->sse_registers);
+    apic_timer(1000000);
     switch_thread(scheduler_th, new);
   }
 }
@@ -71,6 +75,8 @@ void schedule()
   // This function handles swithing to the next thread in the ready queue
 
   thread_t *old = get_current_thread();
+  if(old == scheduler_th)
+    return;
 
   if(old)
   {

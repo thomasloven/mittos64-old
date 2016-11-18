@@ -4,6 +4,7 @@
 #include <mem.h>
 #include <list.h>
 #include <debug.h>
+#include <registers.h>
 
 thread_t *current_thread = 0;
 
@@ -16,8 +17,15 @@ thread_t *new_thread(void (*func)(void))
   thread_stack_t *stack = kcalloc(1, sizeof(thread_stack_t));
   thread_t *th = &stack->tcb;
 
-  stack->function_address = (uint64_t)func;
+  stack->thread = (uint64_t)th;
+  stack->function_address = (uint64_t)isr_return;
   stack->RBP = (uint64_t)&stack->zero_frame;
+
+  th->r.rip = (uint64_t)func;
+  th->r.rflags = RFLAGS_IF;
+  th->r.cs = 0x8;
+  th->r.ss = 0x10;
+  th->r.rsp = (uint64_t)&th->stack_pointer;
 
   th->tid = tid++;
   th->state = THREAD_STATE_READY;

@@ -14,3 +14,6 @@ uint64_t read_cr4();
 
 #define CR4_OSFXSR (1<<9)
 #define CR4_OSXMMEXCPT (1<<10)
+
+#define RFLAGS_IF (1<<9)
+

@@ -7,6 +7,7 @@ swtch:
 # Switches stacks preserving callee preserved registers according to System V ABI
   push rbp
   mov rbp, rsp
+  push rdi
   push r15
   push r14
   push r13
@@ -24,5 +25,6 @@ swtch:
   pop r13
   pop r14
   pop r15
+  pop rdi
   leaveq
   ret

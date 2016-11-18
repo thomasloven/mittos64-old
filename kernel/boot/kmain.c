@@ -18,8 +18,6 @@ void thread_function()
   while(1)
   {
     debug((char *)0x10000);
-    schedule();
-    pit_delay(100);
   }
 }
 
