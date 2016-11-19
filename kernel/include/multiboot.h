@@ -80,6 +80,8 @@ typedef struct {
   #define MBOOT2_CMDLINE 1
   #define MBOOT2_BOOTLOADER 2
   #define MBOOT2_MMAP 6
+  #define MBOOT2_ACPI_V1 14
+  #define MBOOT2_ACPI_V2 15
 
   // Multiboot tags are padded to a multiple of 8 bytes
   #define next_tag(tag) ((void *)((((uintptr_t)tag) + tag->size + 7) & ~0x7))
@@ -92,6 +94,7 @@ typedef struct {
     char *bootloader;
     void *mmap;
     uint32_t mmap_size;
+    void *rsdp;
   };
   extern struct mboot_data_st mboot_data;
 

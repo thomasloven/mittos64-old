@@ -70,6 +70,11 @@ void parse_multiboot2()
         mboot_data.mmap = tag->data;
         debug_ok("MBOOT2 - handle ");
         break;
+      case MBOOT2_ACPI_V1:
+      case MBOOT2_ACPI_V2:
+        mboot_data.rsdp = &tag->data;
+        debug_ok("[MBOOT2] %x handle ", mboot_data.rsdp);
+        break;
       default:
         debug_warning("MBOOT2 - ignore ");
         break;
@@ -128,6 +133,8 @@ int multiboot_page_used(uintptr_t addr)
   } else {
     mboot2_tags_head *data = mboot_data.data;
     if(overlapsz(addr, PAGE_SIZE, V2P(data), data->total_size))
+      return 1;
+    if(mboot_data.rsdp && overlapsz(addr, PAGE_SIZE, mboot_data.rsdp, 1))
       return 1;
   }
   return 0;
