@@ -3,6 +3,7 @@ typedef struct process_st process_t;
 #include <stdint.h>
 #include <thread.h>
 #include <mem.h>
+#include <cpu.h>
 
 typedef struct process_st
 {
@@ -23,9 +24,8 @@ typedef struct process_st
 
 #define process_alive(proc) ((proc)->state == PROC_STATE_READY || (proc)->state == PROC_STATE_RUNNING)
 
-process_t *current_process;
-#define get_current_process() (current_process)
-#define set_current_process(proc) (current_process = (proc))
+#define get_current_process() (get_cpu()->current_process)
+#define set_current_process(proc) (get_cpu()->current_process = (proc))
 
 process_t *process_spawn(process_t *parent);
 void process_attach(process_t *proc, thread_t *th);

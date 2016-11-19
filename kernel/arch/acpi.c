@@ -5,6 +5,7 @@
 #include <string.h>
 #include <multiboot.h>
 #include <int.h>
+#include <cpu.h>
 
 RSDP_st *find_rsdp()
 {
@@ -80,6 +81,8 @@ void parse_MADT(SDT_header *header)
         if(f->proc.flags & 0x1)
         {
           debug(" enabled");
+          // Add processor and LAPIC to list
+          cpu_add(f->proc.proc_ID, f->proc.APIC_ID);
         }
         debug("\n");
         break;

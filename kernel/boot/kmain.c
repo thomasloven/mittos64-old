@@ -1,23 +1,17 @@
 #include <debug.h>
-#include <int.h>
 #include <multiboot.h>
 #include <mem.h>
-#include <gdt.h>
 #include <scheduler.h>
 #include <thread.h>
 #include <process.h>
-#include <cpuid.h>
-#include <acpi.h>
-#include <apic.h>
-#include <sse.h>
+#include <cpu.h>
 #include <timer.h>
-#include <pit.h>
 
 void thread_function()
 {
   while(1)
   {
-    debug((char *)0x10000);
+    ;
   }
 }
 
@@ -32,15 +26,8 @@ int kmain(uint64_t multiboot_magic, void *multiboot_data)
   multiboot_init(multiboot_magic, P2V(multiboot_data));
   vmm_init();
   pmm_init();
-  gdt_init();
-  scheduler_init();
-  pic_init();
-  acpi_init();
-  apic_init();
-  ioapic_init();
-  sse_init();
+  cpu_init();
   pit_init();
-
 
   process_t *p1 = process_spawn(0);
   process_t *p2 = process_spawn(p1);

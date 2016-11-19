@@ -4,6 +4,7 @@ typedef struct thread_st thread_t;
 #include <list.h>
 #include <process.h>
 #include <int.h>
+#include <cpu.h>
 
 #define THREAD_STACK_SIZE 0x1000-sizeof(thread_t)
 
@@ -40,9 +41,8 @@ typedef struct thread_stack_st
   thread_t tcb;
 } thread_stack_t;
 
-thread_t *current_thread;
-#define get_current_thread() (current_thread)
-#define set_current_thread(new) (current_thread = (new))
+#define get_current_thread() (get_cpu()->current_thread)
+#define set_current_thread(new) (get_cpu()->current_thread = (new))
 
 thread_t *new_thread(void (*func)(void));
 void switch_thread(thread_t *old, thread_t *new);

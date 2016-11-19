@@ -46,8 +46,6 @@
 #define APIC(reg) apic[reg/4]
 uint32_t volatile *apic = P2V(APIC_BASE);
 
-uint32_t apic_ticks_per_us;
-
 void apic_interrupt(uint8_t destination, uint8_t level, uint8_t type, uint8_t vector)
 {
   uint64_t data = ((level & 0x1)<<14) | ((type & 0x7)<<8) | vector;
@@ -69,7 +67,7 @@ registers_t *apic_timer_handler(registers_t *r)
 void apic_timer(uint64_t us)
 {
   APIC(R_TIMER_DIV) = TIMER_DIV1;
-  APIC(R_TIMER_INIT) = us*apic_ticks_per_us;
+  APIC(R_TIMER_INIT) = us*get_cpu()->apic_ticks_per_us;
   APIC(R_TIMER_LVT) = TIMER_LVT_ONESHOT | INT_APIC_TIMER;
 }
 void apic_timer_stop()
@@ -91,7 +89,6 @@ uint32_t calibrate_apic_timer(uint32_t resolution)
 
 void apic_init()
 {
-  debug_info("APIC - APIC_BASE MSR: %x\n", msr_read(MSR_APIC_BASE));
   // Enable APIC by setting the enable bit in the APIC MSR
   msr_write(MSR_APIC_BASE, msr_read(MSR_APIC_BASE) | APIC_MSR_ENABLE);
 
@@ -106,9 +103,7 @@ void apic_init()
   APIC(R_EOI) = 0;
 
   // Calibrate timer
-  apic_ticks_per_us = calibrate_apic_timer(100);
-  debug_info("APIC - ticks per us:%d\n", apic_ticks_per_us);
-  debug("  corresponds to processor frequency: %d MHz\n", apic_ticks_per_us);
+  get_cpu()->apic_ticks_per_us = calibrate_apic_timer(100);
 
   // Register temporary timer handler to go off every 10 ms
   register_int_handler(INT_APIC_TIMER, apic_timer_handler);

@@ -1,15 +1,15 @@
 #include <gdt.h>
 #include <stdint.h>
 #include <debug.h>
+#include <cpu.h>
 
-uint64_t gdt[5];
-struct gdtp_st gdt_p;
-#define GDT gdt
-#define GDTP gdt_p
+#define GDT cpu->gdt
+#define GDTP cpu->gdt_p
 
 
 void gdt_init()
 {
+  cpu_t *cpu = get_cpu();
 
   GDT[0] = 0;
   GDT[SEG_KCODE/8] = (uint64_t)(GDT_PRESENT | GDT_CODEDATA | GDT_WRITE | GDT_EXECUTE | GDT_64BIT);

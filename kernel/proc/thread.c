@@ -6,8 +6,6 @@
 #include <debug.h>
 #include <registers.h>
 
-thread_t *current_thread = 0;
-
 uint64_t tid = 1;
 
 
