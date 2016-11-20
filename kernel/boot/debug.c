@@ -1,9 +1,11 @@
 #include <debug.h>
+#include <int.h>
 #include <stdarg.h>
 #include <stdint.h>
 #include <string.h>
 #include <vga.h>
 #include <serial.h>
+#include <registers.h>
 
 void debug_init()
 {
@@ -129,4 +131,16 @@ void debug_printf(char *str, ...)
   va_start(args, str);
   debug_vprintf(str, args);
   va_end(args);
+}
+
+void print_registers(registers_t *r)
+{
+  debug("Num:%x Error:%x\n", r->int_no, r->err_code);
+  debug("RAX:%x RBX:%x RCX:%x RDX:%x\n", r->rax, r->rbx, r->rcx, r->rdx);
+  debug("RSI:%x RDI:%x RBP:%x RSP:%x\n", r->rsi, r->rdi, r->rbp, r->rsp);
+  debug("R8:%x R9:%x R10:%x R11:%x\n", r->r8, r->r9, r->r10, r->r11);
+  debug("R12:%x R13:%x R14:%x R15:%x\n", r->r12, r->r13, r->r14, r->r15);
+  debug("RIP:%x RFL:%x\n", r->rip, r->rflags);
+  debug("CS:%x SS:%x\n", r->cs, r->ss);
+  debug("CR0:%x CR2:%x CR3:%x CR4:%x\n", read_cr0(), read_cr2(), read_cr3(), read_cr4());
 }

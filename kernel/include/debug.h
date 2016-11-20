@@ -1,5 +1,6 @@
 #pragma once
 #include <string.h>
+#include <int.h>
 
 #ifndef NDEBUG
   #define debug(...) debug_printf(__VA_ARGS__)
@@ -29,3 +30,4 @@ char *_kernel_git_branch;
 void debug_build_time();
 void debug_git_info();
 
+void print_registers(registers_t *);

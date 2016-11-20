@@ -10,8 +10,8 @@ endif
 
 
 # Find all source files and corresponding object files
-KERNEL_SRC := $(wildcard **/*.[cS])
-KERNEL_OBJS := $(addprefix obj/,$(patsubst %,%.o,$(basename $(KERNEL_SRC))))
+KERNEL_SRC := $(wildcard **/*.[cS]*)
+KERNEL_OBJS := $(addprefix obj/,$(patsubst %,%.o,$(basename $(basename $(KERNEL_SRC)))))
 
 # Kernel object file
 KERNEL := obj/boot/kernel
@@ -21,7 +21,7 @@ VERSION_OBJ := obj/boot/version.o
 
 # Default compilation flags
 CFLAGS ?= -Wall -Wextra
-CFLAGS += -ffreestanding -mcmodel=large
+CFLAGS += -ffreestanding -mcmodel=large -mno-red-zone
 CPPFLAGS += -Iinclude
 # Optimize only if not debugging
 ifdef NDEBUG
@@ -69,6 +69,8 @@ obj/%.o: %.c obj/%.d
 	$(COMPILE.c) $(DEPFLAGS) $< -o $@
 obj/%.o: %.S obj/%.d
 	$(COMPILE.S) $(DEPFLAGS) $< -o $@
+%.S: %.S.py
+	python $^ > $@
 obj/%.d: ;
 
 # For installing stuff
@@ -86,3 +88,4 @@ clean:
 -include $(KERNEL_DEP)
 
 .PHONY: all clean install install-kernel
+.INTERMEDIATE: $(basename $(filter %.py, $(KERNEL_SRC)))
