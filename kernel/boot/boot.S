@@ -1,6 +1,13 @@
 .intel_syntax noprefix
 #include <mem.h>
 
+.section .data
+// Some room to store the bootloader return values
+MultiBootMagic:
+  .quad 0x0
+MultiBootData:
+  .quad 0x0
+
 // Some info from here: http://os.phil-opp.com/multiboot-kernel.html
 .section .text
 .global _start
@@ -8,6 +15,9 @@
 _start:
   cli
 
+  // Save eax and ebx in memory
+  mov V2P(MultiBootMagic), eax
+  mov V2P(MultiBootData), ebx
 
   // Check if long mode is available
   // Otherwise, there's no point in continuing
@@ -73,6 +83,12 @@ long_mode_start:
   // Remove identity mapping
   mov rax, 0x0
   mov [V2P(BootP4)], rax
+
+  // Get the saved bootloader data and pass to kmain
+  movabs rax, MultiBootMagic
+  mov rdi, rax
+  movabs rax, MultiBootData
+  mov rsi, rax
 
   // Call c kernel code
   .extern kmain

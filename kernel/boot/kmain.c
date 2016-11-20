@@ -1,21 +1,14 @@
 #include <debug.h>
+#include <multiboot.h>
+#include <mem.h>
 
-int kmain(void)
+int kmain(uint64_t multiboot_magic, void *multiboot_data)
 {
   debug_init();
   debug_ok("MITTOS64 kernel booted\n");
   debug_build_time();
   debug_git_info();
-
-  // Test the printf functions
-  debug("binary:%b octal:%o dec:%d\n", 0xAA55, 0123, 456);
-  debug("hex:%x string:%s char:%c\n", 0xabcd, "Hello", 'T');
-  debug("pointer:%x\n", kmain);
-
-  debug_info("An information string\n");
-  debug_ok("%s prints ok\n", "This string");
-  debug_warning("A warning message\n");
-  debug_error("%d is less than %x\n", 12, 17);
+  multiboot_init(multiboot_magic, P2V(multiboot_data));
 
   debug_info("BOOT COMPLETE\n");
   for(;;)asm("hlt");

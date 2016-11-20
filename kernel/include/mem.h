@@ -13,6 +13,8 @@
   #include <stdint.h>
   #define V2P(a) ((uintptr_t)(a) - KERNEL_OFFSET)
   #define P2V(a) ((void *)((uintptr_t)(a) + KERNEL_OFFSET))
+  // returns an address n bytes after the target of pointer p
+  #define incptr(p, n) ((void *)(((uintptr_t)(p)) + (n)))
 #endif
 
 // Paging
