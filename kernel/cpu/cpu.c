@@ -4,6 +4,9 @@
 #include <msr.h>
 #include <sse.h>
 #include <scheduler.h>
+#include <mem.h>
+#include <gdt.h>
+#include <string.h>
 
 cpu_t cpus[MAX_NUMCPU];
 unsigned int num_cpu = 0;
@@ -19,6 +22,11 @@ void cpu_add(uint64_t id, uint64_t apic)
   cpu->id = id;
   cpu->apic_id = apic;
   cpu->is_bsp = (num_cpu)?0:1;
+
+  cpu->current_thread = 0;
+  cpu->current_state = (num_cpu)?CPU_STOPPED:CPU_STARTED;
+  cpu->kernel_stack = (num_cpu)?kmalloc(PAGE_SIZE) + PAGE_SIZE:0;
+
   num_cpu++;
 }
 
@@ -43,6 +51,15 @@ void cpu_init()
   msr_write(MSR_REG_KERNEL_GS, cpus[0].cpu);
   asm("swapgs");
   init_cpu();
+
+  vmm_set_page(0, TRAMPOLINE_ADDR, TRAMPOLINE_ADDR, PAGE_PRESENT | PAGE_WRITE);
+  memcpy((void *)TRAMPOLINE_ADDR, &trampoline, PAGE_SIZE);
+  vmm_set_page(0, V2P(&BootGDT), V2P(&BootGDT), PAGE_PRESENT);
+  for(unsigned int i = 0; i < num_cpu; i++)
+  {
+    ap_init(&cpus[i]);
+  }
+  vmm_set_page(0, TRAMPOLINE_ADDR, 0, 0);
 
   debug_info("CPU - Status\n");
   for(unsigned int i = 0; i < num_cpu; i++)
