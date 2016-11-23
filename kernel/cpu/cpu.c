@@ -10,6 +10,7 @@
 
 cpu_t cpus[MAX_NUMCPU];
 unsigned int num_cpu = 0;
+unsigned int all_ap_started = 0;
 
 void cpu_add(uint64_t id, uint64_t apic)
 {
@@ -32,9 +33,6 @@ void cpu_add(uint64_t id, uint64_t apic)
 
 void init_cpu()
 {
-  cpu_t *cpu = get_cpu();
-  debug_info("CPU - Initializing CPU %x\n", cpu->id);
-
   interrupt_init();
   apic_init();
   gdt_init();
@@ -52,18 +50,24 @@ void cpu_init()
   asm("swapgs");
   init_cpu();
 
+  uintptr_t page = pmm_alloc();
   vmm_set_page(0, TRAMPOLINE_ADDR, TRAMPOLINE_ADDR, PAGE_PRESENT | PAGE_WRITE);
+  vmm_set_page(0, TRAMPOLINE_GDT, page, PAGE_PRESENT | PAGE_WRITE);
   memcpy((void *)TRAMPOLINE_ADDR, &trampoline, PAGE_SIZE);
-  vmm_set_page(0, V2P(&BootGDT), V2P(&BootGDT), PAGE_PRESENT);
+  memcpy((void *)TRAMPOLINE_GDT, &trampoline_GDT, PAGE_SIZE);
+
   for(unsigned int i = 0; i < num_cpu; i++)
-  {
     ap_init(&cpus[i]);
-  }
+
+  all_ap_started = 1;
+
   vmm_set_page(0, TRAMPOLINE_ADDR, 0, 0);
+  pmm_free(page);
 
   debug_info("CPU - Status\n");
   for(unsigned int i = 0; i < num_cpu; i++)
   {
     debug("  CPU id:%x lapic:%x\n", cpus[i].id, cpus[i].apic_id);
   }
+
 }

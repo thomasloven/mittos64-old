@@ -6,7 +6,7 @@
 #include <thread.h>
 
 struct int_gate_descriptor idt[NUM_INTERRUPTS];
-struct idtr idtr;
+struct idtr idtr = {0,0};
 int_handler_t int_handlers[NUM_INTERRUPTS];
 
 void idt_set(uint32_t num, void *vector, uint16_t cs, uint8_t ist, uint8_t flags)
@@ -22,21 +22,29 @@ void idt_set(uint32_t num, void *vector, uint16_t cs, uint8_t ist, uint8_t flags
 
 void interrupt_init()
 {
-  // Clear IDT and interrupt handler list
-  memset(idt, 0, sizeof(idt));
-  memset(int_handlers, 0, sizeof(int_handlers));
-
-  // Register all vectors in the IDT
-  extern void *isr_table[];
-  for(int i=0; i < NUM_INTERRUPTS; i++)
+  if(!idtr.addr)
   {
-    idt_set(i, isr_table[i], 0x8, 0,
-        (IDT_PRESENT | IDT_DPL0 | IDT_INTERRUPT));
-  }
+    // Clear IDT and interrupt handler list
+    memset(idt, 0, sizeof(idt));
+    memset(int_handlers, 0, sizeof(int_handlers));
 
-  // Setup pointer and load IDT
-  idtr.addr = (uint64_t)idt;
-  idtr.len = sizeof(idt)-1;
+    // Register all vectors in the IDT
+    extern void *isr_table[];
+    for(int i=0; i < NUM_INTERRUPTS; i++)
+    {
+      idt_set(i, isr_table[i], 0x8, 0,
+          (IDT_PRESENT | IDT_DPL0 | IDT_INTERRUPT));
+    }
+
+    // Setup pointer and load IDT
+    idtr.addr = (uint64_t)idt;
+    idtr.len = sizeof(idt)-1;
+  }
+  load_idt(&idtr);
+}
+
+void interrupt_init_smp()
+{
   load_idt(&idtr);
 }
 

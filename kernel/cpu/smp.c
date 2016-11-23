@@ -45,6 +45,9 @@ void ap_init(cpu_t *cpu)
 
 void ap_start()
 {
-  debug_ok("STARTED CPU:%x\n", get_cpu()->id);
+  init_cpu();
+  while(!all_ap_started);
+  cpu_t *cpu = get_cpu();
+  debug_ok("STARTED CPU:%x\n", cpu->id);
   for(;;)asm("hlt");
 }

@@ -1,6 +1,7 @@
 #include <mem.h>
 #include <cpu.h>
 #include <msr.h>
+#include <gdt.h>
 #define TRAMPOLINE_OFFSET TRAMPOLINE_ADDR - trampoline
 
 .intel_syntax noprefix
@@ -51,7 +52,7 @@ start_32:
   or eax, 1<<31
   mov cr0, eax
 
-  lgdt V2P(BootGDTp)
+  lgdt [trampoline_GDTp + TRAMPOLINE_OFFSET]
 
   mov ax, 0x10
   mov ds, ax
@@ -106,5 +107,14 @@ ap_boot_idt:
 .global ap_gs_base
 ap_gs_base:
   .long 0x00000000, 0x00000000
+
+.global trampoline_GDT
+trampoline_GDT:
+  .quad 0
+  .quad (GDT_PRESENT | GDT_CODEDATA | GDT_WRITE | GDT_EXECUTE | GDT_64BIT)
+  .quad (GDT_PRESENT | GDT_CODEDATA | GDT_WRITE)
+trampoline_GDTp:
+  .short 3*8-1
+  .quad TRAMPOLINE_GDT
 trampoline_end:
   nop

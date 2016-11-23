@@ -9,6 +9,7 @@
 #define CPU_FAILED 4
 
 #define TRAMPOLINE_ADDR 0x1000
+#define TRAMPOLINE_GDT 0x2000
 
 #define GS_OFFSET_CPU 0
 #define GS_OFFSET_STATE 40
@@ -39,6 +40,7 @@ typedef struct cpu_t
 
 extern cpu_t cpus[];
 extern unsigned int num_cpu;
+extern unsigned int all_ap_started;
 
 void acpi_init();
 void cpu_add(uint64_t id, uint64_t apic);
@@ -48,6 +50,7 @@ cpu_t *get_cpu();
 void ap_init(cpu_t *cpu);
 
 void trampoline();
+void trampoline_GDT();
 #endif
 
 
