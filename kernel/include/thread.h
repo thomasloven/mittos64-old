@@ -44,7 +44,7 @@ typedef struct thread_stack_st
 #define get_current_thread() (get_cpu()->current_thread)
 #define set_current_thread(new) (get_cpu()->current_thread = (new))
 
-thread_t *new_thread(void (*func)(void));
+thread_t *new_thread(void (*func)(void), int user);
 void switch_thread(thread_t *old, thread_t *new);
 void free_thread(thread_t *th);
 

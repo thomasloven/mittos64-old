@@ -8,21 +8,30 @@
 
 uint64_t tid = 1;
 
-thread_t *new_thread(void (*func)(void))
+thread_t *new_thread(void (*func)(void), int user)
 {
   // Set up original stack of thread
   thread_stack_t *stack = kcalloc(1, sizeof(thread_stack_t));
   thread_t *th = &stack->tcb;
 
   stack->thread = (uint64_t)th;
-  stack->function_address = (uint64_t)isr_return;
   stack->RBP = (uint64_t)&stack->zero_frame;
 
-  th->r.rip = (uint64_t)func;
   th->r.rflags = RFLAGS_IF;
-  th->r.cs = 0x8;
-  th->r.ss = 0x10;
-  th->r.rsp = (uint64_t)&th->stack_pointer;
+  if(user)
+  {
+    stack->function_address = (uint64_t)isr_return;
+    th->r.rip = (uint64_t)func;
+    th->r.cs = SEG_UCODE|3;
+    th->r.ss = SEG_UDATA|3;
+    th->r.rflags |= RFLAGS_IOPL3;
+    th->r.rsp = USERSPACE_TOP;
+  } else {
+    stack->function_address = (uint64_t)func;
+    th->r.cs = SEG_KCODE;
+    th->r.ss = SEG_KDATA;
+    th->r.rsp = (uint64_t)&th->stack_pointer;
+  }
 
   th->tid = tid++;
   th->state = THREAD_STATE_READY;
@@ -37,6 +46,8 @@ thread_t *new_thread(void (*func)(void))
 void switch_thread(thread_t *old, thread_t *new)
 {
   set_current_thread(new);
+  get_cpu()->tss.rsp0 = (uint64_t)&new->stack_pointer;
+  get_cpu()->kernel_stack = &new->stack_pointer;
 
   uint64_t *old_stack = (old)?&old->stack_pointer:0;
   swtch(old_stack, &new->stack_pointer);

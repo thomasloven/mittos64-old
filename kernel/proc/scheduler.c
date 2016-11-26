@@ -105,5 +105,5 @@ void scheduler_init()
     LIST_HEAD_INIT(ready_queue);
     scheduler_started = 1;
   }
-  get_cpu()->scheduler = new_thread(scheduler);
+  get_cpu()->scheduler = new_thread(scheduler, 0);
 }

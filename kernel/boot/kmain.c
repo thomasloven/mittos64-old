@@ -6,12 +6,14 @@
 #include <process.h>
 #include <cpu.h>
 #include <timer.h>
+#include <string.h>
 
 void thread_function()
 {
+  int i = 0;
   while(1)
   {
-    ;
+    i++;
   }
 }
 
@@ -30,10 +32,18 @@ int kmain(uint64_t multiboot_magic, void *multiboot_data)
   pit_init();
 
   process_t *p1 = process_spawn(0);
-  thread_t *t1 = new_thread(thread_function);
-  process_attach(p1, t1);
+  uint64_t addr = 0x200000;
+  thread_t *th = new_thread((void *)addr, 1);
 
-  scheduler_insert(t1);
+  uintptr_t page = pmm_alloc();
+  // Write thread code to address
+  vmm_set_page(p1->P4, addr, page, PAGE_PRESENT | PAGE_WRITE | PAGE_USER);
+  memcpy(P2V(page), thread_function, PAGE_SIZE);
+  // Map a user stack space
+  vmm_set_page(p1->P4, USERSPACE_TOP-PAGE_SIZE, pmm_alloc(), PAGE_PRESENT | PAGE_WRITE | PAGE_USER);
+
+  process_attach(p1, th);
+  scheduler_insert(th);
 
   asm("sti");
   debug_info("BOOT COMPLETE\n");

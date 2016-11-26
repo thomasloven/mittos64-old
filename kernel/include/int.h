@@ -66,6 +66,14 @@
 #define   INT_APIC_ERROR     0x45
 #define   INT_APIC_SPUR      0xFF
 
+
+#define RFLAGS_IOPL (3<<12)
+#define RFLAGS_IOPL1 (1<<12)
+#define RFLAGS_IOPL2 (2<<12)
+#define RFLAGS_IOPL3 (3<<12)
+#define RFLAGS_INT  (1<<9)
+#define REG_OFFSET_RFLAGS 152
+
 #ifndef __ASSEMBLER__
 #include <stdint.h>
 #include <apic.h>
@@ -116,13 +124,13 @@ typedef struct registers_st
   uint64_t r14;
   uint64_t r15;
 
-  uint64_t int_no;
-  uint64_t err_code;
-  uint64_t rip;
-  uint64_t cs;
-  uint64_t rflags;
-  uint64_t rsp;
-  uint64_t ss;
+  uint64_t int_no; //120
+  uint64_t err_code; //128
+  uint64_t rip; //136
+  uint64_t cs; //144
+  uint64_t rflags; //152
+  uint64_t rsp; //160
+  uint64_t ss; //168
 }registers_t;
 
 typedef registers_t *(*int_handler_t)(registers_t *);

@@ -1,3 +1,4 @@
+#include <int.h>
 .intel_syntax noprefix
 
 .extern int_handler
@@ -21,13 +22,33 @@ isr_common:
   push rcx
   push rbx
   push rax
+
+  # Clear RFLAGS
+  pushq 0
+  popf
+
+  # Check stored RFLAGS to see if we came here from user mode
+  mov rax, [rsp + REG_OFFSET_RFLAGS]
+  and rax, RFLAGS_IOPL
+  jz .kernel_mode
+  swapgs
+
+.kernel_mode:
   mov rdi, rsp
   call int_handler
   mov rdi, rax
 
 isr_return:
-  // Return and restore stack
   mov rsp, rdi
+
+  # Check stored RFLAGS to see if we are going into user mode
+  mov rax, [rsp + REG_OFFSET_RFLAGS]
+  and rax, RFLAGS_IOPL
+  jz .kernel_return
+  swapgs
+
+.kernel_return:
+  // Return and restore stack
   pop rax
   pop rbx
   pop rcx
