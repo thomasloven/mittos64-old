@@ -30,22 +30,9 @@ int kmain(uint64_t multiboot_magic, void *multiboot_data)
   pit_init();
 
   process_t *p1 = process_spawn(0);
-
   thread_t *t1 = new_thread(thread_function);
   process_attach(p1, t1);
 
-  scheduler_insert(t1);
-  t1 = new_thread(thread_function);
-  process_attach(p1, t1);
-  scheduler_insert(t1);
-  t1 = new_thread(thread_function);
-  process_attach(p1, t1);
-  scheduler_insert(t1);
-  t1 = new_thread(thread_function);
-  process_attach(p1, t1);
-  scheduler_insert(t1);
-  t1 = new_thread(thread_function);
-  process_attach(p1, t1);
   scheduler_insert(t1);
 
   asm("sti");

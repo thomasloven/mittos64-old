@@ -34,9 +34,10 @@ typedef struct cpu_t
   thread_t *current_thread;
   thread_t *last_thread;
   process_t *current_process;
-  uint64_t gdt[5];
+  uint64_t gdt[7];
   struct gdtp_st gdt_p;
   thread_t *scheduler;
+  tss_t tss;
 }__attribute__((packed)) cpu_t;
 
 extern cpu_t cpus[];

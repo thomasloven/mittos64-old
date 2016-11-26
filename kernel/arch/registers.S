@@ -1,3 +1,4 @@
+#include <mem.h>
 .intel_syntax noprefix
 #include <gdt.h>
 
@@ -41,3 +42,8 @@ load_gdt:
 .load_gdt:
   ret
 
+.global load_tr
+load_tr:
+  mov rax, rdi
+  ltr ax
+  ret
