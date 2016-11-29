@@ -25,6 +25,16 @@ void parse_multiboot1()
     mboot_data.mmap_size = data->mmap_len/sizeof(mboot1_mmap_entry);
     mboot_data.mmap = P2V(data->mmap_addr);
   }
+  if(data->flags & (1<<3))
+  {
+    if(data->mods_count)
+    {
+      mboot1_module_entry *mod = P2V(data->mods_addr);
+      mboot_data.init = P2V(mod->mod_start);
+      mboot_data.init_len = mod->mod_end - mod->mod_start;
+      debug_ok("[MBOOT1] init executable: %x (%x bytes)\n", mboot_data.init, mboot_data.init_len);
+    }
+  }
 }
 
 char *mboot_tags_type[] = {
@@ -120,6 +130,8 @@ void multiboot_init(uint64_t magic, void *data)
 
 int multiboot_page_used(uintptr_t addr)
 {
+  if(overlapsz(addr, PAGE_SIZE, V2P(mboot_data.init), mboot_data.init_len))
+    return 1;
   if(mboot_data.version == 1)
   {
     mboot1_info *data = mboot_data.data;

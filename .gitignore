@@ -7,3 +7,4 @@ kernel/obj/
 *.o
 *.a
 tags
+init/init

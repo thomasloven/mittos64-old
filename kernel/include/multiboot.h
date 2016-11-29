@@ -51,6 +51,12 @@ typedef struct {
   uint32_t len_hi;
   uint32_t type;
 } mboot1_mmap_entry;
+typedef struct {
+  uint32_t mod_start;
+  uint32_t mod_end;
+  uint32_t str_ptr;
+  uint32_t reserved;
+} mboot1_module_entry;
 
 // MULTIBOOT 2
 
@@ -95,6 +101,8 @@ typedef struct {
     void *mmap;
     uint32_t mmap_size;
     void *rsdp;
+    void *init;
+    uint64_t init_len;
   };
   extern struct mboot_data_st mboot_data;
 
