@@ -10,7 +10,7 @@ export BUILDROOT=`pwd`
 export SYSROOT=${BUILDROOT}/sysroot
 export TOOLCHAIN=${BUILDROOT}/toolchain
 export PATH=${TOOLCHAIN}/bin:${PATH}
-export TARGET=x86_64-elf
+export TARGET=x86_64-mittos64
 
 # shortcuts for some useful tools
 alias dbg="x86_64-elf-linux-gdb"

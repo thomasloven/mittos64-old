@@ -1,0 +1,113 @@
+--- config.sub	2016-12-01 11:48:25.000000000 +0100
++++ config.sub	2016-12-01 11:48:36.000000000 +0100
+@@ -1377,6 +1377,7 @@
+ 	-gnu* | -bsd* | -mach* | -minix* | -genix* | -ultrix* | -irix* \
+ 	      | -*vms* | -sco* | -esix* | -isc* | -aix* | -cnk* | -sunos | -sunos[34]*\
+ 	      | -hpux* | -unos* | -osf* | -luna* | -dgux* | -auroraux* | -solaris* \
++        | -mittos64* \
+ 	      | -sym* | -kopensolaris* | -plan9* \
+ 	      | -amigaos* | -amigados* | -msdos* | -newsos* | -unicos* | -aof* \
+ 	      | -aos* | -aros* | -cloudabi* \
+
+--- bfd/config.bfd	2016-12-01 11:52:56.000000000 +0100
++++ bfd/config.bfd	2016-12-01 11:57:59.000000000 +0100
+@@ -168,6 +168,18 @@
+     ;;
+ 
+ # START OF targmatch.h
++  i[3-7]86-*-mittos64*)
++    targ_defvec=i386_elf32_vec
++    targ_selvecs=
++    targ64_selvecs=x86_64_elf64_vec
++    ;;
++#ifdef BFD64
++  x86_64-*-mittos64*)
++    targ_defvec=x86_64_elf64_vec
++    targ_selvecs=i386_elf32_vec
++    want64=true
++    ;;
++#endif
+ #ifdef BFD64
+   aarch64-*-elf)
+     targ_defvec=aarch64_elf64_le_vec
+
+--- gas/configure.tgt	2016-12-01 12:00:43.000000000 +0100
++++ gas/configure.tgt	2016-12-01 12:02:07.000000000 +0100
+@@ -120,6 +120,7 @@
+ generic_target=${cpu_type}-$vendor-$os
+ # Note: This table is alpha-sorted, please try to keep it that way.
+ case ${generic_target} in
++  i386-*-mittos64*)			fmt=elf em=gnu;;
+   aarch64*-*-elf)			fmt=elf;;
+   aarch64*-*-linux*)			fmt=elf em=linux ;;
+ 
+
+--- ld/configure.tgt	2016-12-01 12:03:56.000000000 +0100
++++ ld/configure.tgt	2016-12-01 12:09:12.000000000 +0100
+@@ -45,6 +45,15 @@
+ # architecture variants should be kept together even if their names
+ # break the alpha sorting.
+ case "${targ}" in
++i[3-7]86-*-mittos64*)
++			targ_emul=elf_i386_mittos64
++			targ_extra_emuls=elf_i386
++			targ64_extra_emuls="elf_x86_64_mittos64 elf_x86_64"
++			;;
++x86_64-*-mittos64*)
++			targ_emul=elf_x86_64_mittos64
++			targ_extra_emuls="elf_i386_mittos64 elf_x86_64 elf_i386"
++			;;
+ aarch64_be-*-elf)	targ_emul=aarch64elfb
+ 			targ_extra_emuls="aarch64elf aarch64elf32 aarch64elf32b armelfb armelf" ;;
+ aarch64-*-elf)		targ_emul=aarch64elf
+
+--- /dev/null	2016-12-01 12:13:02.000000000 +0100
++++ ld/emulparams/elf_i386_mittos64.sh	2016-12-01 12:14:00.000000000 +0100
+@@ -0,0 +1 @@
++. ${srcdir}/emulparams/elf_i386.sh
+
+--- /dev/null	2016-12-01 12:15:22.000000000 +0100
++++ ld/emulparams/elf_x86_64_mittos64.sh	2016-12-01 12:15:52.000000000 +0100
+@@ -0,0 +1 @@
++. ${srcdir}/emulparams/elf_x86_64.sh
+
+--- ld/Makefile.am	2016-12-01 12:22:53.000000000 +0100
++++ ld/Makefile.am	2016-12-01 13:26:20.000000000 +0100
+@@ -280,6 +280,7 @@
+ 	eelf32xstormy16.c \
+ 	eelf32xtensa.c \
+ 	eelf_i386.c \
++	eelf_i386_mittos64.c \
+ 	eelf_i386_be.c \
+ 	eelf_i386_chaos.c \
+ 	eelf_i386_fbsd.c \
+@@ -496,6 +497,7 @@
+ 	eelf_k1om.c \
+ 	eelf_k1om_fbsd.c \
+ 	eelf_x86_64.c \
++	eelf_x86_64_mittos64.c \
+ 	eelf_x86_64_cloudabi.c \
+ 	eelf_x86_64_fbsd.c \
+ 	eelf_x86_64_nacl.c \
+@@ -1295,6 +1297,10 @@
+ eelf_i386.c: $(srcdir)/emulparams/elf_i386.sh \
+   $(ELF_DEPS) $(srcdir)/scripttempl/elf.sc ${GEN_DEPENDS}
+ 
++eelf_i386_mittos64.c: $(srcdir)/emulparams/elf_i386_mittos64.sh \
++  $(ELF_DEPS) $(srcdir)/scripttempl/elf.sc ${GEN_DEPENDS}
++	${GENSCRIPTS} elf_i386_mittos64 "$(tdir_elf_i386_mittos64)"
++
+ eelf_i386_be.c: $(srcdir)/emulparams/elf_i386_be.sh \
+   $(ELF_DEPS) $(srcdir)/scripttempl/elf.sc ${GEN_DEPENDS}
+ 
+@@ -1987,6 +1993,10 @@
+ eelf_x86_64.c: $(srcdir)/emulparams/elf_x86_64.sh \
+   $(ELF_DEPS) $(srcdir)/scripttempl/elf.sc ${GEN_DEPENDS}
+ 
++eelf_x86_64_mittos64.c: $(srcdir)/emulparams/elf_x86_64_mittos64.sh \
++  $(ELF_DEPS) $(srcdir)/scripttempl/elf.sc ${GEN_DEPENDS}
++	${GENSCRIPTS} elf_x86_64_mittos64 "$(tdir_elf_x86_64_mittos64)"
++
+ eelf_x86_64_cloudabi.c: $(srcdir)/emulparams/elf_x86_64_cloudabi.sh \
+   $(srcdir)/emulparams/elf_x86_64.sh \
+   $(ELF_DEPS) $(srcdir)/scripttempl/elf.sc ${GEN_DEPENDS}

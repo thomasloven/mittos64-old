@@ -1,0 +1,108 @@
+--- config.sub	2016-12-01 14:15:39.000000000 +0100
++++ config.sub	2016-12-01 14:16:53.000000000 +0100
+@@ -1376,6 +1376,7 @@
+ 	-gnu* | -bsd* | -mach* | -minix* | -genix* | -ultrix* | -irix* \
+ 	      | -*vms* | -sco* | -esix* | -isc* | -aix* | -cnk* | -sunos | -sunos[34]*\
+ 	      | -hpux* | -unos* | -osf* | -luna* | -dgux* | -auroraux* | -solaris* \
++        | -mittos64* \
+ 	      | -sym* | -kopensolaris* | -plan9* \
+ 	      | -amigaos* | -amigados* | -msdos* | -newsos* | -unicos* | -aof* \
+ 	      | -aos* | -aros* | -cloudabi* | -sortix* \
+
+--- gcc/config.gcc	2016-12-01 16:08:28.000000000 +0100
++++ gcc/config.gcc	2016-12-01 16:08:12.000000000 +0100
+@@ -612,6 +612,12 @@
+ 
+ # Common parts for widely ported systems.
+ case ${target} in
++*-*-mittos64)
++  gas=yes
++  gnu_ld=yes
++  default_use_cxa_atexit=yes
++  use_gcc_stdint=wrap
++  ;;
+ *-*-darwin*)
+   tmake_file="t-darwin ${cpu_type}/t-darwin"
+   tm_file="${tm_file} darwin.h"
+@@ -907,6 +912,12 @@
+ esac
+ 
+ case ${target} in
++i[34567]86-*-mittos64*)
++	tm_file="${tm_file} i386/unix.h i386/att.h dbxelf.h elfos.h newlib-stdint.h i386/i386elf.h mittos64.h"
++	;;
++x86_64-*-mittos64*)
++	tm_file="${tm_file} i386/unix.h i386/att.h dbxelf.h elfos.h newlib-stdint.h i386/i386elf.h i386/x86-64.h mittos64.h"
++	;;
+ aarch64*-*-elf | aarch64*-*-rtems*)
+ 	tm_file="${tm_file} dbxelf.h elfos.h newlib-stdint.h"
+ 	tm_file="${tm_file} aarch64/aarch64-elf.h aarch64/aarch64-elf-raw.h"
+
+--- /dev/null	2016-12-01 16:23:01.000000000 +0100
++++ gcc/config/mittos64.h	2016-12-01 16:15:32.000000000 +0100
+@@ -0,0 +1,20 @@
++#undef TARGET_MITTOS64
++#define TARGET_MITTOS64 1
++
++#define LIB_SPEC "-lc"
++
++#define STARTFILE_SPEC "crt0.o%s crti.o%s crtbegin.o%s"
++#define ENDFILE_SPEC "crtend.o%s crtn.o%s"
++
++#undef NO_IMPLICIT_EXTERN_C
++#define NO_IMPLICIT_EXTERN_C 1
++
++#undef TARGET_OS_CPP_BUILTINS
++#define TARGET_OS_CPP_BUILTINS() \
++  do { \
++    builtin_define ("__mittos64__"); \
++    builtin_define ("__unix__"); \
++    builtin_assert ("system=mittos64"); \
++    builtin_assert ("system=unix"); \
++    builtin_assert ("system=posix"); \
++  } while(0);
+
+--- libstdc++-v3/crossconfig.m4	2016-12-01 16:16:26.000000000 +0100
++++ libstdc++-v3/crossconfig.m4	2016-12-01 16:17:22.000000000 +0100
+@@ -5,6 +5,12 @@
+ AC_DEFUN([GLIBCXX_CROSSCONFIG],[
+ # Base decisions on target environment.
+ case "${host}" in
++  *-mittos64*)
++    GLIBCXX_CHECK_COMPILER_FEATURES
++    GLIBCXX_CHECK_LINKER_FEATURES
++    GLIBCXX_CHECK_MATH_SUPPORT
++    GLIBCXX_CHECK_STDLIB_SUPPORT
++    ;;
+   arm*-*-symbianelf*)
+     # This is a freestanding configuration; there is nothing to do here.
+     ;;
+
+--- libgcc/config.host	2016-12-01 16:17:44.000000000 +0100
++++ libgcc/config.host	2016-12-01 16:20:42.000000000 +0100
+@@ -327,6 +327,14 @@
+ esac
+ 
+ case ${host} in
++i[34567]86-*-mittos64*)
++	extra_parts="$extra_parts crtbegin.o crtend.o"
++	tmake_file="$tmake_file i386/t-crtstuff t-crtstuff-pic t-libgcc-pic"
++	;;
++x86_64-*-mittos64*)
++	extra_parts="$extra_parts crtbegin.o crtend.o"
++	tmake_file="$tmake_file i386/t-crtstuff t-crtstuff-pic t-libgcc-pic"
++	;;
+ aarch64*-*-elf | aarch64*-*-rtems*)
+ 	extra_parts="$extra_parts crtbegin.o crtend.o crti.o crtn.o"
+ 	extra_parts="$extra_parts crtfastmath.o"
+
+--- fixincludes/mkfixinc.sh	2016-12-01 16:22:08.000000000 +0100
++++ fixincludes/mkfixinc.sh	2016-12-01 16:22:41.000000000 +0100
+@@ -11,6 +11,7 @@
+ 
+ # Check for special fix rules for particular targets
+ case $machine in
++    *-mittos64* | \
+     i?86-*-cygwin* | \
+     i?86-*-mingw32* | \
+     x86_64-*-mingw32* | \

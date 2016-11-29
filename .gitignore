@@ -4,4 +4,6 @@ sysroot/
 *.img
 *.log
 kernel/obj/
+*.o
+*.a
 tags
