@@ -9,6 +9,8 @@
 #include <string.h>
 #include <cpu.h>
 #include <elf.h>
+#include <syscall.h>
+#include <cpuid.h>
 
 int kmain(uint64_t multiboot_magic, void *multiboot_data)
 {
@@ -23,6 +25,8 @@ int kmain(uint64_t multiboot_magic, void *multiboot_data)
   pmm_init();
   cpu_init();
   pit_init();
+
+  debug_info("Syscall enabled:%d\n", CPUID_FEATURE_SYSCALL);
 
   process_t *p1 = process_spawn(0);
   thread_t *th = exec_elf(p1, mboot_data.init);

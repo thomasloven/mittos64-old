@@ -64,6 +64,15 @@ isr_return:
   pop r13
   pop r14
   pop r15
+
+  // Jump to syscall_return if we're in a syscall
+  push rax
+  mov rax, [rsp + 8]
+  cmp rax, INT_SYSCALL
+  .extern syscall_return
+  jz syscall_return
+  pop rax
+
   // Pop error code and fault number
   add rsp, 16
   iretq

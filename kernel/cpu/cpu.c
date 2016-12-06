@@ -7,6 +7,7 @@
 #include <mem.h>
 #include <gdt.h>
 #include <string.h>
+#include <syscall.h>
 
 cpu_t cpus[MAX_NUMCPU];
 unsigned int num_cpu = 0;
@@ -38,6 +39,7 @@ void init_cpu()
   gdt_init();
   sse_init();
   scheduler_init();
+  syscall_init();
 }
 
 void cpu_init()

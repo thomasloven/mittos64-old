@@ -14,6 +14,7 @@
 #define GS_OFFSET_CPU 0
 #define GS_OFFSET_STATE 40
 #define GS_OFFSET_STACK 48
+#define GS_OFFSET_SCTEMP 56
 
 #ifndef __ASSEMBLER__
 #include <stdint.h>
@@ -31,6 +32,7 @@ typedef struct cpu_t
   uint64_t is_bsp;
   uint64_t current_state; // 40
   void *kernel_stack; // 48
+  uint64_t syscall_temp; // 56
   thread_t *current_thread;
   thread_t *last_thread;
   process_t *current_process;

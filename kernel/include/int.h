@@ -66,6 +66,7 @@
 #define   INT_APIC_ERROR     0x45
 #define   INT_APIC_SPUR      0xFF
 
+#define INT_SYSCALL 0x80
 
 #define RFLAGS_IOPL (3<<12)
 #define RFLAGS_IOPL1 (1<<12)
