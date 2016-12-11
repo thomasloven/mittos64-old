@@ -39,3 +39,5 @@ typedef long (*syscall_handler_t)(long num, long, long, long, long, long, long);
 #define SYSCALL_INIT(...) _SYSCALL_INIT(_SYSCALL_INIT,__VA_ARGS__)
 
 #define SYSCALL_REGISTER(name, num) syscall_handlers[num] = syscall_##name
+
+SYSCALL_DECL(write);

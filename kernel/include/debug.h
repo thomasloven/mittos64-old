@@ -2,11 +2,14 @@
 #include <string.h>
 #include <int.h>
 #include <sync.h>
+#include <stddef.h>
 
 #ifndef NDEBUG
   #define debug(...) ({spin_lock(&debug_lock);debug_printf(__VA_ARGS__);spin_unlock(&debug_lock);})
+  #define debugn(str, n) ({spin_lock(&debug_lock);debug_putsn((str), (n)); spin_unlock(&debug_lock);})
 #else
   #define debug(...) ((void)0)
+  #define debugn(...) ((void)0)
 #endif
 #define debug_info(...) do{debug("[INFO] ");debug(__VA_ARGS__);}while(0)
 #define debug_ok(...) do{debug("[OK] ");debug(__VA_ARGS__);}while(0)

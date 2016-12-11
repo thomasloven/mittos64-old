@@ -5,6 +5,7 @@
 #include <gdt.h>
 #include <registers.h>
 #include "../../libc/syscall_num.h"
+#include <string.h>
 
 extern void syscall_entry();
 
@@ -34,6 +35,7 @@ registers_t *syscall_handler(registers_t *r)
   }
 
   debug_error("Unknown syscall, No:%d\n", r->rax);
+
   debug("syscall_%d(%x, %x, %x, %x, %x, %x)\n", r->rax, r->rdi, r->rsi, r->rdx, r->r10, r->r8, r->r9);
   for(;;);
 }
@@ -54,6 +56,7 @@ void syscall_init()
     memset(syscall_handlers, 0, 1024*sizeof(syscall_handler_t));
 
     SYSCALL_REGISTER(debug, SYS_DEBUG);
+    SYSCALL_REGISTER(write, SYS_WRITE);
   }
 
 }
