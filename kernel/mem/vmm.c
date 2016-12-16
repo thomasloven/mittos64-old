@@ -22,7 +22,10 @@ page_table *vmm_new_P4()
 
 void vmm_set_P4(page_table *P4)
 {
-  write_cr3((uint64_t)P4);
+  if(P4)
+    write_cr3((uint64_t)P4);
+  else
+    write_cr3(V2P(&BootP4));
 }
 
 void vmm_free_P4(page_table *P4)
@@ -145,6 +148,8 @@ registers_t *page_fault_handler(registers_t *r)
 #ifndef NDEBUG
   thread_t *th = get_current_thread();
   (void)th;
+  process_t *proc = get_current_process();
+  (void)proc;
   asm("page_fault_breakpoint:");
 #endif
   for(;;);

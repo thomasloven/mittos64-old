@@ -1,5 +1,6 @@
 #include <thread.h>
 #include <stdint.h>
+#include <process.h>
 #include <mem.h>
 #include <list.h>
 #include <debug.h>
@@ -23,6 +24,7 @@ thread_t *new_thread(void (*func)(void))
   th->stack_pointer = (uint64_t)&stack->RBP;
 
   LIST_INIT(th, ready_queue);
+  LIST_INIT(th, process_threads);
 
   return th;
 }
@@ -42,6 +44,8 @@ void free_thread(thread_t *th)
     debug_error("Trying to free a live thread!\n");
     for(;;);
   }
+  if(!LIST_EMPTY(th->process_threads))
+    LIST_REMOVE(th->process->threads, th, process_threads);
   thread_stack_t *stack = incptr(th, -offsetof(thread_stack_t, tcb));
   kfree(stack);
 }

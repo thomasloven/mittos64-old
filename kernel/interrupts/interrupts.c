@@ -63,6 +63,8 @@ registers_t *int_handler(registers_t *r)
 #ifndef NDEBUG
   thread_t *th = get_current_thread();
   (void)th;
+  process_t *proc = get_current_process();
+  (void)proc;
   asm("int_handler_breakpoint:");
 #endif
 

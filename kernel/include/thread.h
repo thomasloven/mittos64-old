@@ -1,6 +1,8 @@
 #pragma once
+typedef struct thread_st thread_t;
 #include <stdint.h>
 #include <list.h>
+#include <process.h>
 
 #define THREAD_STACK_SIZE 0x1000-sizeof(thread_t)
 
@@ -9,6 +11,8 @@ typedef struct thread_st
   uint64_t stack_pointer; // Top of the kernel stack for thread
   uint64_t tid;
   uint64_t state;
+  process_t *process;
+  LIST(struct thread_st, process_threads);
   LIST(struct thread_st, ready_queue);
 } thread_t;
 

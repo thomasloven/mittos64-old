@@ -41,15 +41,25 @@ void scheduler()
     thread_t *old = 0, *new = 0;
     if((old = get_last_thread()))
     {
-      if(old->state == THREAD_STATE_RUNNING)
+      if(old->state != THREAD_STATE_FINISHED && process_alive(old->process))
       {
         old->state = THREAD_STATE_READY;
         scheduler_insert(old);
+      } else {
+        old->state = THREAD_STATE_FINISHED;
       }
     }
+
     while(!(new = scheduler_next()));
+
+    if(!process_alive(new->process))
+    {
+      new->state = THREAD_STATE_FINISHED;
+      continue;
+    }
     new->state = THREAD_STATE_RUNNING;
     set_last_thread(new);
+    switch_process(new->process);
     switch_thread(scheduler_th, new);
   }
 }
@@ -60,6 +70,7 @@ void schedule()
 
   thread_t *old = get_current_thread();
 
+  switch_process(0);
   switch_thread(old, scheduler_th);
 }
 
