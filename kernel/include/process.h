@@ -3,6 +3,7 @@ typedef struct process_st process_t;
 #include <stdint.h>
 #include <thread.h>
 #include <mem.h>
+#include <int.h>
 #include <cpu.h>
 #include <sync.h>
 #include <mem.h>
@@ -62,3 +63,4 @@ void procmm_print_map(procmm_mmap_t *map);
 procmm_area_t *procmm_map(procmm_mmap_t *map, uintptr_t start, uintptr_t end, uint64_t flags);
 void procmm_unmap(procmm_area_t *a);
 uintptr_t procmm_setup(process_t *proc);
+registers_t *procmm_page_fault(registers_t *r);

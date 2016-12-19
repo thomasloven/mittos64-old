@@ -4,6 +4,7 @@
 #include <int.h>
 #include <registers.h>
 #include <thread.h>
+#include <scheduler.h>
 
 
 #define STRIP_FLAGS(addr) ((void *)(((uintptr_t)(addr)) & ~PAGE_FLAGS_MASK))
@@ -169,6 +170,13 @@ size_t vmm_p4_memset(page_table *P4, void *s, int c, size_t n)
 
 registers_t *page_fault_handler(registers_t *r)
 {
+  if(get_current_process())
+  {
+    registers_t *ret = procmm_page_fault(r);
+    if(ret)
+      return ret;
+  }
+
   debug("\n ===== PAGE FAULT =====\n");
   debug("Instruction at:%x tried to", r->rip);
   if(r->err_code & 0x2)

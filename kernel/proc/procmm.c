@@ -1,6 +1,9 @@
 #include <scheduler.h>
 #include <list.h>
 #include <debug.h>
+#include <int.h>
+#include <cpu.h>
+#include <registers.h>
 
 procmm_mmap_t *procmm_new_map(process_t *proc, procmm_mmap_t *src)
 {
@@ -111,4 +114,29 @@ uintptr_t procmm_setup(process_t *proc)
   map->stack = procmm_map(map, USERSPACE_TOP, USERSPACE_TOP, 0);
 
   return brk_start;
+}
+
+registers_t *procmm_page_fault(registers_t *r)
+{
+  procmm_mmap_t *map = get_current_process()->mmap;
+  uintptr_t addr = read_cr2();
+
+  // We don't want to handle stuff in the kernel
+  if(addr >= KERNEL_OFFSET)
+    return 0;
+
+  // Check if we're close to the stack
+  if(map->stack)
+  {
+    if(map->stack->start <= addr + PAGE_SIZE)
+    {
+      debug("Increase user stack\n");
+      map->stack->start = map->stack->start - PAGE_SIZE;
+      vmm_set_page(map->P4, map->stack->start, pmm_alloc(), PAGE_PRESENT | PAGE_WRITE | PAGE_USER);
+      return r;
+    }
+  }
+
+  // If we reach this point, procmm couldn't handle the page fault
+  return 0;
 }
