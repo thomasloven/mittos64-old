@@ -35,12 +35,12 @@ int kmain(uint64_t multiboot_magic, void *multiboot_data)
   uint64_t addr = 0x200000;
   thread_t *th = new_thread((void *)addr, 1);
 
-  uintptr_t page = pmm_alloc();
   // Write thread code to address
-  vmm_set_page(p1->P4, addr, page, PAGE_PRESENT | PAGE_WRITE | PAGE_USER);
-  memcpy(P2V(page), thread_function, PAGE_SIZE);
-  // Map a user stack space
-  vmm_set_page(p1->P4, USERSPACE_TOP-PAGE_SIZE, pmm_alloc(), PAGE_PRESENT | PAGE_WRITE | PAGE_USER);
+  procmm_map(p1->mmap, addr, addr+PAGE_SIZE, 0);
+  vmm_p4_memcpy(p1->mmap->P4, (void *)addr, 0, thread_function, PAGE_SIZE);
+  procmm_setup(p1);
+
+  procmm_print_map(p1->mmap);
 
   process_attach(p1, th);
   scheduler_insert(th);

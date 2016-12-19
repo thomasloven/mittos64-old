@@ -12,7 +12,6 @@ process_t *process_spawn(process_t *parent)
   process_t *proc = kcalloc(1, sizeof(process_t));
   proc->pid = pid++;
   proc->parent =  parent;
-  proc->P4 = vmm_new_P4();
   proc->state = PROC_STATE_READY;
 
   LIST_INIT(proc, children);
@@ -23,7 +22,10 @@ process_t *process_spawn(process_t *parent)
   {
     spin_lock(&parent->lock);
     LIST_APPEND(parent->children, proc, siblings);
+    proc->mmap = procmm_new_map(proc, parent->mmap);
     spin_unlock(&parent->lock);
+  } else {
+    proc->mmap = procmm_new_map(proc, 0);
   }
 
   if(proc->pid == 1)
@@ -55,7 +57,7 @@ void switch_process(process_t *proc)
   if(proc)
   {
     proc->state = PROC_STATE_RUNNING;
-    vmm_set_P4(proc->P4);
+    vmm_set_P4(proc->mmap->P4);
   }
   else
   {
@@ -91,8 +93,8 @@ void process_free(process_t *proc)
     free_thread(th);
   }
   LIST_REMOVE(proc->parent->children, proc, siblings);
-  // Free page directory
-  vmm_free_P4(proc->P4);
+  // Free memory mappings
+  procmm_free_map(proc);
   // Free process structure
   kfree(proc);
 }
