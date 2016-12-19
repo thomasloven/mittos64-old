@@ -57,6 +57,8 @@ void vmm_set_P4(page_table *P4);
 void vmm_free_P4(page_table *P4);
 uintptr_t vmm_get_page(page_table *P4, uintptr_t addr);
 uintptr_t vmm_set_page(page_table *P4, uintptr_t addr, uintptr_t phys, uint32_t flags);
+size_t vmm_p4_memcpy(page_table *dst_P4, void *dst, page_table *src_P4, void *src, size_t n);
+size_t vmm_p4_memset(page_table *P4, void *s, int c, size_t n);
 
 void kfree(void *a);
 void *kmalloc(size_t size);

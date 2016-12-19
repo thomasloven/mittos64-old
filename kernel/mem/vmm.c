@@ -121,6 +121,52 @@ uintptr_t vmm_set_page(page_table *P4, uintptr_t addr, uintptr_t phys, uint32_t 
 }
 
 
+size_t vmm_p4_memcpy(page_table *dst_P4, void *dst, page_table *src_P4, void *src, size_t n)
+{
+  size_t copied = 0;
+  while(n)
+  {
+    size_t d_offset = (uintptr_t)dst % PAGE_SIZE;
+    size_t s_offset = (uintptr_t)src % PAGE_SIZE;
+    size_t d_bytes = PAGE_SIZE - d_offset;
+    size_t s_bytes = PAGE_SIZE - s_offset;
+    size_t bytes = (d_bytes < s_bytes)?d_bytes:s_bytes;
+    bytes = (bytes < n)?bytes:n;
+    void *d_page = STRIP_FLAGS(vmm_get_page(dst_P4, (uintptr_t)dst));
+    void *s_page = STRIP_FLAGS(vmm_get_page(src_P4, (uintptr_t)src));
+    if (!d_page || !s_page)
+      return 0;
+    memcpy(incptr(P2V(d_page), d_offset), incptr(P2V(s_page), s_offset), bytes);
+
+    copied += bytes;
+    n -= bytes;
+    dst = incptr(dst, bytes);
+    src = incptr(src, bytes);
+  }
+  return copied;
+}
+
+size_t vmm_p4_memset(page_table *P4, void *s, int c, size_t n)
+{
+  size_t set = 0;
+  while(n)
+  {
+    size_t offset = (uintptr_t)s % PAGE_SIZE;
+    size_t bytes = PAGE_SIZE - offset;
+    bytes = (bytes < n)?bytes:n;
+    void *page = STRIP_FLAGS(vmm_get_page(P4, (uintptr_t)s));
+    if(!page)
+      return 0;
+    memset(incptr(P2V(page), offset), c, bytes);
+
+    set += bytes;
+    n -= bytes;
+    s = incptr(s, bytes);
+  }
+  return set;
+}
+
+
 registers_t *page_fault_handler(registers_t *r)
 {
   debug("\n ===== PAGE FAULT =====\n");

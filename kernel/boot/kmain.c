@@ -9,11 +9,6 @@
 
 void thread_function()
 {
-  char *str = (char *)0x10000;
-  str[0] = (char)((unsigned int)'0' + get_current_process()->pid);
-  str[1] = (char)((unsigned int)'0' + get_current_thread()->tid);
-  str[3] = '-';
-  str[2] = '\0';
   while(1)
   {
     debug((char *)0x10000);
@@ -48,6 +43,9 @@ int kmain(uint64_t multiboot_magic, void *multiboot_data)
 
   vmm_set_page(p1->P4, 0x10000, pmm_alloc(), PAGE_PRESENT | PAGE_WRITE);
   vmm_set_page(p2->P4, 0x10000, pmm_alloc(), PAGE_PRESENT | PAGE_WRITE);
+
+  vmm_p4_memcpy(p1->P4, (void *)0x10000, 0, "Hello, 1", 9);
+  vmm_p4_memcpy(p2->P4, (void *)0x10000, 0, "Hello, 2", 9);
 
   scheduler_insert(t1);
   scheduler_insert(t2);
