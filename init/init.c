@@ -5,14 +5,18 @@ int main(int argc, char **argv)
 {
   (void) argc;
   (void) argv;
-  printf("Hello, world!\n");
-  printf("Some numbers:%d\n", 12345);
-  printf("And hex:%#x\n", 0xabcdef);
-  printf("And a string:%s\n", "Hello!");
 
-  printf("Arguments passed to init:\n");
-  for(int i=0; i < argc; i++)
-    printf("%d: %s\n", i, argv[i]);
+  char *a = malloc(0x100);
+  printf("Pointer: %p\n", a);
+  char *b = malloc(0x100);
+  printf("Pointer: %p\n", b);
+  char *c = malloc(0x10);
+  printf("Pointer: %p\n", c);
+  c[0] = 5;
+  free(a);
+  free(b);
+  free(c);
+
   for(;;);
   return 0;
 }

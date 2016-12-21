@@ -103,6 +103,35 @@ void procmm_unmap(procmm_area_t *a)
   kfree(a);
 }
 
+size_t procmm_resize(process_t *p, procmm_area_t *a, size_t len)
+{
+  procmm_mmap_t *map = p->mmap;
+  size_t old_len = a->end - a->start;
+  size_t old_end = a->end;
+  if(old_len < len)
+  {
+    procmm_area_t *next = a->areas.next;
+    uintptr_t max = next->start;
+    max = (max < a->start)?KERNEL_OFFSET:max;
+    if((a->start + len) > max)
+      len = max - a->start;
+
+    a->end = a->start + len;
+
+    uintptr_t page = (old_end + PAGE_SIZE) & ~(PAGE_SIZE-1);
+    while(page < a->end)
+    {
+      vmm_set_page(map->P4, page, pmm_alloc(), PAGE_PRESENT | PAGE_WRITE | PAGE_USER);
+      page += PAGE_SIZE;
+    }
+
+  } else {
+    debug_error("Decreasing memory area size is not implemented yet\n");
+    for(;;);
+  }
+  return len;
+}
+
 int procmm_setup(process_t *proc, size_t brk_size)
 {
   procmm_mmap_t *map = proc->mmap;

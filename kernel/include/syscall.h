@@ -41,3 +41,4 @@ typedef long (*syscall_handler_t)(long num, long, long, long, long, long, long);
 #define SYSCALL_REGISTER(name, num) syscall_handlers[num] = syscall_##name
 
 SYSCALL_DECL(write);
+SYSCALL_DECL(brk);
