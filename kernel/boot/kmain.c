@@ -6,6 +6,7 @@
 #include <scheduler.h>
 #include <thread.h>
 #include <process.h>
+#include <cpuid.h>
 
 void thread_function()
 {
@@ -31,6 +32,11 @@ int kmain(uint64_t multiboot_magic, void *multiboot_data)
   scheduler_init();
   pic_init();
 
+  debug_info("CPUID - max function number: Normal:%x, Extended:%x\n", cpuid_max, cpuid_maxx);
+  debug_info("CPUID - has MSR:%d\n", CPUID_FEATURE_MSR);
+  debug_info("CPUID - has APIC:%d\n", CPUID_FEATURE_APIC);
+  debug_info("CPUID - has SYSCALL:%d\n", CPUID_FEATURE_SYSCALL);
+
   process_t *p1 = process_spawn(0);
   process_t *p2 = process_spawn(p1);
 
@@ -52,7 +58,6 @@ int kmain(uint64_t multiboot_magic, void *multiboot_data)
   scheduler_insert(t2);
   scheduler_insert(t3);
 
-  IRQ_UNMASK(IRQ_TIMER);
   asm("sti");
   debug_info("BOOT COMPLETE\n");
   schedule();

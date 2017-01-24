@@ -1,5 +1,6 @@
 .intel_syntax noprefix
 #include <mem.h>
+#include <cpuid.h>
 
 .section .data
 // Some room to store the bootloader return values
@@ -83,6 +84,26 @@ long_mode_start:
   // Remove identity mapping
   mov rax, 0x0
   mov [V2P(BootP4)], rax
+
+  // CPUID
+#define CPUID(function) mov rax, (function); cpuid;
+#define STORE(reg, variable) movabs r8, offset (variable); mov dword ptr [r8], (reg);
+  // Store max CPUID function numbers
+  CPUID(CPUID_FUNCTION_VENDOR)
+  STORE(eax, cpuid_max)
+  CPUID(CPUID_FUNCTIONX_VENDOR)
+  STORE(eax, cpuid_maxx)
+  // Store CPUID features
+  CPUID(CPUID_FUNCTION_FEATURES)
+  STORE(eax, cpuid_signature)
+  STORE(ebx, cpuid_features_b)
+  STORE(ecx, cpuid_features_c)
+  STORE(edx, cpuid_features_d)
+  // ...and extended features
+  CPUID(CPUID_FUNCTIONX_FEATURES)
+  STORE(ebx, cpuid_featuresx_b)
+  STORE(ecx, cpuid_featuresx_c)
+  STORE(edx, cpuid_featuresx_d)
 
   // Get the saved bootloader data and pass to kmain
   movabs rax, MultiBootMagic
