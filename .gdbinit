@@ -1,6 +1,7 @@
 file sysroot/boot/kernel
 target remote localhost:1234
 break int_handler_breakpoint
+break page_fault_breakpoint
 
 define q
 monitor quit

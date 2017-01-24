@@ -7,6 +7,7 @@ KERNEL_START = 0x100000;
 SECTIONS
 {
   . = KERNEL_START + KERNEL_OFFSET;
+  kernel_start = .;
 
   .text : AT(ADDR(.text) - KERNEL_OFFSET)
   {
@@ -30,4 +31,6 @@ SECTIONS
     *(.COMMON)
     *(.bss)
   }
+  . = ALIGN(4096);
+  kernel_end = .;
 }

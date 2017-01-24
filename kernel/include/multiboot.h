@@ -43,6 +43,15 @@
     uint32_t vbe_interface_len;
   } mboot1_info;
 
+typedef struct {
+  uint32_t size;
+  uint32_t base_lo;
+  uint32_t base_hi;
+  uint32_t len_lo;
+  uint32_t len_hi;
+  uint32_t type;
+} mboot1_mmap_entry;
+
 // MULTIBOOT 2
 
   typedef struct {
@@ -56,9 +65,21 @@
     char data[];
   } mboot2_tag_basic;
 
+  typedef struct {
+    uint64_t base_addr;
+    uint64_t length;
+    uint32_t type;
+    uint32_t reserved;
+  } mboot2_mmap_entry;
+  typedef struct {
+    uint32_t entry_size;
+    uint32_t entry_version;
+    mboot2_mmap_entry entries[];
+  } mboot2_memory_map;
 
   #define MBOOT2_CMDLINE 1
   #define MBOOT2_BOOTLOADER 2
+  #define MBOOT2_MMAP 6
 
   // Multiboot tags are padded to a multiple of 8 bytes
   #define next_tag(tag) ((void *)((((uintptr_t)tag) + tag->size + 7) & ~0x7))
@@ -69,9 +90,15 @@
     void *data;
     char *commandline;
     char *bootloader;
+    void *mmap;
+    uint32_t mmap_size;
   };
   extern struct mboot_data_st mboot_data;
 
+#define MBOOT_MMAP_FREE 1
+
   void multiboot_init(uint64_t magic, void *data);
+  int multiboot_page_used(uintptr_t addr);
+  int multiboot_get_memory_area(uintptr_t *start, uintptr_t *end, uint32_t *type);
 
 #endif

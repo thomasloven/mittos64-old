@@ -12,12 +12,13 @@ int kmain(uint64_t multiboot_magic, void *multiboot_data)
 
   interrupt_init();
   multiboot_init(multiboot_magic, P2V(multiboot_data));
+  vmm_init();
+  pmm_init();
+
+  // We still need the GDT to be mapped in
+  extern void *BootGDT;
+  vmm_set_page(0, V2P(&BootGDT), V2P(&BootGDT), PAGE_PRESENT);
 
   debug_info("BOOT COMPLETE\n");
-  // Cause a divide-by-zero exception
-  int a = 5, b = 0;
-  int c = a/b;
-  (void)c;
-
   for(;;)asm("hlt");
 }

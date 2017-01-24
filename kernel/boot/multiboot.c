@@ -19,6 +19,12 @@ void parse_multiboot1()
     debug_ok("MBOOT1 - bootloader\n");
     mboot_data.bootloader = P2V(data->bootloader_name);
   }
+  if(data->flags & (1<<6))
+  {
+    debug_ok("MBOOT1 - memory map\n");
+    mboot_data.mmap_size = data->mmap_len/sizeof(mboot1_mmap_entry);
+    mboot_data.mmap = P2V(data->mmap_addr);
+  }
 }
 
 char *mboot_tags_type[] = {
@@ -58,6 +64,12 @@ void parse_multiboot2()
         mboot_data.bootloader = tag->data;
         debug_ok("MBOOT2 - handle ");
         break;
+      case MBOOT2_MMAP:
+        mboot_data.mmap_size = (tag->size - 8)/
+          ((mboot2_memory_map*)tag->data)->entry_size;
+        mboot_data.mmap = tag->data;
+        debug_ok("MBOOT2 - handle ");
+        break;
       default:
         debug_warning("MBOOT2 - ignore ");
         break;
@@ -91,4 +103,60 @@ void multiboot_init(uint64_t magic, void *data)
     debug_info("MBOOT - Command line: %s\n", mboot_data.commandline);
   if(mboot_data.bootloader)
     debug_info("MBOOT - Bootloader: %s\n", mboot_data.bootloader);
+}
+
+#define overlap(start1, end1, start2, end2) \
+  (!( \
+    ((uintptr_t)(start1) >= (uintptr_t)(end2)) \
+      || ((uintptr_t)(end1) <= (uintptr_t)(start2)) \
+  ))
+#define overlapsz(start1, size1, start2, size2) \
+  overlap((start1), (start1)+(size1), (start2), (start2)+(size2))
+
+int multiboot_page_used(uintptr_t addr)
+{
+  if(mboot_data.version == 1)
+  {
+    mboot1_info *data = mboot_data.data;
+    if(overlapsz(addr, PAGE_SIZE, V2P(data), sizeof(data)))
+      return 1;
+    if(data->flags & (1<<6))
+    {
+      if(overlapsz(addr, PAGE_SIZE, data->mmap_addr, data->mmap_len*sizeof(mboot1_mmap_entry)))
+        return 1;
+    }
+  } else {
+    mboot2_tags_head *data = mboot_data.data;
+    if(overlapsz(addr, PAGE_SIZE, V2P(data), data->total_size))
+      return 1;
+  }
+  return 0;
+}
+
+int multiboot_get_memory_area(uintptr_t *start, uintptr_t *end, uint32_t *type)
+{
+  static uint32_t entry = 0;
+  if(entry >= mboot_data.mmap_size)
+    return 0;
+  if(mboot_data.version == 1)
+  {
+    mboot1_mmap_entry *map = (void *)mboot_data.mmap;
+    *start = ((uintptr_t)map[entry].base_hi << 32) + map[entry].base_lo;
+    *end = *start + ((uintptr_t)map[entry].len_hi << 32) + map[entry].len_lo;
+    *type = map[entry].type;
+  } else {
+    mboot2_memory_map *mmap = mboot_data.mmap;
+    mboot2_mmap_entry *e = mmap->entries;
+    uint32_t i = entry;
+    while(i)
+    {
+      e = incptr(e, mmap->entry_size);
+      i--;
+    }
+    *start = (uintptr_t)e->base_addr;
+    *end = *start + (uintptr_t)e->length;
+    *type = e->type;
+  }
+  entry++;
+  return 1;
 }
