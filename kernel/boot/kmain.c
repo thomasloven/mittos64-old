@@ -11,6 +11,7 @@
 #include <apic.h>
 #include <sse.h>
 #include <timer.h>
+#include <pit.h>
 
 void thread_function()
 {
@@ -18,6 +19,7 @@ void thread_function()
   {
     debug((char *)0x10000);
     schedule();
+    pit_delay(100);
   }
 }
 
