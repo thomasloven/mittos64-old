@@ -1,4 +1,5 @@
 .intel_syntax noprefix
+#include <gdt.h>
 
 .global load_idt
 load_idt:
@@ -25,3 +26,18 @@ write_cr3:
 read_cr4:
   mov rax, cr4
   ret
+
+.global load_gdt
+load_gdt:
+  lgdt [rdi]
+  mov ax, SEG_KDATA
+  mov ss, ax
+  mov ds, ax
+  mov es, ax
+  movabs rax, offset .load_gdt
+  pushq SEG_KCODE
+  push rax
+  retfq # perform long jump to SEG_KCODE:.load_gdt
+.load_gdt:
+  ret
+

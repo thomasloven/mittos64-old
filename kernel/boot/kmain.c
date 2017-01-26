@@ -2,6 +2,7 @@
 #include <int.h>
 #include <multiboot.h>
 #include <mem.h>
+#include <gdt.h>
 
 int kmain(uint64_t multiboot_magic, void *multiboot_data)
 {
@@ -14,23 +15,8 @@ int kmain(uint64_t multiboot_magic, void *multiboot_data)
   multiboot_init(multiboot_magic, P2V(multiboot_data));
   vmm_init();
   pmm_init();
+  gdt_init();
 
-  // We still need the GDT to be mapped in
-  extern void *BootGDT;
-  vmm_set_page(0, V2P(&BootGDT), V2P(&BootGDT), PAGE_PRESENT);
-
-  void *a = kmalloc(0x400);
-  void *b = kmalloc(0x200);
-  void *c = kmalloc(0x100);
-  kfree(b);
-  void *d = kmalloc(0x100);
-
-  (void)a;
-  (void)b;
-  (void)c;
-  (void)d;
-
-  heap_print();
 
   debug_info("BOOT COMPLETE\n");
   for(;;)asm("hlt");
