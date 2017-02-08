@@ -86,6 +86,4 @@ void ioapic_init()
   vmm_set_page(0, (uintptr_t)P2V(IOAPIC_BASE), IOAPIC_BASE, PAGE_PRESENT | PAGE_WRITE);
   for(int i = 0; i < 24; i++)
     ioapic_route(i, IOAPIC_DEST_LOGICAL | IOAPIC_DELIVERY_LOWEST, 0xFF, INT_IRQ0+i);
-
-  IRQ_UNMASK(IRQ_KEYBOARD);
 }

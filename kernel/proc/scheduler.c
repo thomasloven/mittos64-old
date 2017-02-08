@@ -1,6 +1,7 @@
 #include <scheduler.h>
 #include <list.h>
 #include <debug.h>
+#include <sse.h>
 
 LIST(thread_t, ready_queue);
 
@@ -60,6 +61,7 @@ void scheduler()
     new->state = THREAD_STATE_RUNNING;
     set_last_thread(new);
     switch_process(new->process);
+    sse_restore(new->sse_registers);
     switch_thread(scheduler_th, new);
   }
 }
@@ -69,6 +71,11 @@ void schedule()
   // This function handles swithing to the next thread in the ready queue
 
   thread_t *old = get_current_thread();
+
+  if(old)
+  {
+    sse_save(old->sse_registers);
+  }
 
   switch_process(0);
   switch_thread(old, scheduler_th);

@@ -11,6 +11,7 @@ typedef struct thread_st
   uint64_t stack_pointer; // Top of the kernel stack for thread
   uint64_t tid;
   uint64_t state;
+  uint8_t sse_registers[512];
   process_t *process;
   LIST(struct thread_st, process_threads);
   LIST(struct thread_st, ready_queue);
