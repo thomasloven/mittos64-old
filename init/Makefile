@@ -11,6 +11,8 @@ CFLAGS ?= -Wall -Wextra -ggdb -O0
 
 all: init
 
+init: $(SYSROOT)/usr/lib/libc.a
+
 $(installdir)/init: init
 	mkdir -p $(dir $@)
 	cp $< $@

@@ -8,8 +8,12 @@ endif
 SHELL := bash
 
 CC=$(TARGET)-gcc
+AR=$(TARGET)-ar
+LD=$(TARGET)-ld
 FLAGS_TO_PASS:= \
-	CC=$(CC)
+	CC=$(CC) \
+	AR=$(AR) \
+	LD=$(LD)
 
 all: kernel libc init
 
@@ -24,6 +28,7 @@ libc:
 ifeq ($(shell make -sqC libc || echo 1), 1)
 	@(. util/helpers.sh; print_info "Building c library")
 	$(MAKE) -C libc install $(FLAGS_TO_PASS)
+	$(MAKE) $(MAKECMDGOALS)
 endif
 
 init:

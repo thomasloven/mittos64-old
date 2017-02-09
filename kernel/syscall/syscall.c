@@ -4,6 +4,7 @@
 #include <msr.h>
 #include <gdt.h>
 #include <registers.h>
+#include "../../libc/syscall_num.h"
 
 extern void syscall_entry();
 
@@ -52,7 +53,7 @@ void syscall_init()
     syscall_installed = 1;
     memset(syscall_handlers, 0, 1024*sizeof(syscall_handler_t));
 
-    SYSCALL_REGISTER(debug, 0x3FF);
+    SYSCALL_REGISTER(debug, SYS_DEBUG);
   }
 
 }

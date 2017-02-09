@@ -18,10 +18,12 @@ musl_config="--target=${TARGET} \
   --disable-shared \
   --enable-debug \
   CFLAGS=-O0"
+musl_patchcmd="${BUILDROOT}/util/patch_musl.sh ${STASH}/musl/"
 
 musl_headers_checkfile=${SYSROOT}/usr/include/complex.h
 musl_headers_filename=${musl_filename}
 musl_headers_url=${musl_url}
+musl_headers_patchcmd=${musl_patchcmd}
 function musl_headers_install() {
   local package=musl
 
