@@ -103,13 +103,13 @@ void procmm_unmap(procmm_area_t *a)
   kfree(a);
 }
 
-uintptr_t procmm_setup(process_t *proc)
+int procmm_setup(process_t *proc, size_t brk_size)
 {
   procmm_mmap_t *map = proc->mmap;
   procmm_area_t *last_a = map->areas.prev;
 
   uintptr_t brk_start = (last_a->end + PAGE_SIZE) & ~(PAGE_SIZE-1);
-  map->brk = procmm_map(map, brk_start, brk_start, 0);
+  map->brk = procmm_map(map, brk_start, brk_start + brk_size, 0);
 
   map->stack = procmm_map(map, USERSPACE_TOP, USERSPACE_TOP, 0);
 

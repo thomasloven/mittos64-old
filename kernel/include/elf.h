@@ -4,4 +4,4 @@
 #include <thread.h>
 
 void *load_elf(process_t *p, void *data);
-thread_t *exec_elf(process_t *p, void *image);
+thread_t *exec_elf(process_t *p, void *image, char *argv[], char *envp[]);

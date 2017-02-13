@@ -13,10 +13,12 @@
 
   call _init
 
-  pop rdi
   pop rsi
+  pop rdx
+  movabs rax, offset main
+  mov rdi, rax
 
-  call main
+  call __libc_start_main
 
   call _fini
 

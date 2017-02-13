@@ -12,6 +12,7 @@
 #include <syscall.h>
 #include <cpuid.h>
 
+int kernel_execve(process_t *p, void *image, char *argv[], char *envp[]);
 int kmain(uint64_t multiboot_magic, void *multiboot_data)
 {
   debug_init();
@@ -29,11 +30,12 @@ int kmain(uint64_t multiboot_magic, void *multiboot_data)
   debug_info("Syscall enabled:%d\n", CPUID_FEATURE_SYSCALL);
 
   process_t *p1 = process_spawn(0);
-  thread_t *th = exec_elf(p1, mboot_data.init);
+  char *args[] = {"init", "Hello, arg", "5", 0};
+  char *env[] = {"OS=mittos64", 0};
+  thread_t *th = exec_elf(p1, mboot_data.init, args, env);
   scheduler_insert(th);
 
   procmm_print_map(p1->mmap);
-
 
   asm("sti");
   debug_info("BOOT COMPLETE\n");

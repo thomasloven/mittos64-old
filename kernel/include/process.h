@@ -62,5 +62,5 @@ void procmm_free_map(process_t *proc);
 void procmm_print_map(procmm_mmap_t *map);
 procmm_area_t *procmm_map(procmm_mmap_t *map, uintptr_t start, uintptr_t end, uint64_t flags);
 void procmm_unmap(procmm_area_t *a);
-uintptr_t procmm_setup(process_t *proc);
+int procmm_setup(process_t *proc, size_t brk_size);
 registers_t *procmm_page_fault(registers_t *r);

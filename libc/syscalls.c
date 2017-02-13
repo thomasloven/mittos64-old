@@ -46,8 +46,3 @@ long __syscall_common(long num, ...)
   while(1);
   return 0;
 }
-
-struct pthread *__pthread_self()
-{
-  return 0;
-}
