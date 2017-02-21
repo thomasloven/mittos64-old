@@ -6,16 +6,16 @@ int main(int argc, char **argv)
   (void) argc;
   (void) argv;
 
-  char *a = malloc(0x100);
-  printf("Pointer: %p\n", a);
-  char *b = malloc(0x100);
-  printf("Pointer: %p\n", b);
-  char *c = malloc(0x10);
-  printf("Pointer: %p\n", c);
-  c[0] = 5;
-  free(a);
-  free(b);
-  free(c);
+  int num = 5;
+
+  if(fork())
+  {
+    num = 10;
+    printf("I am the parent! - %d\n", num);
+  } else {
+    num = 3;
+    printf("I am the child! - %d\n", num);
+  }
 
   for(;;);
   return 0;

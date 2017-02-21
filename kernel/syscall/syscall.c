@@ -58,6 +58,7 @@ void syscall_init()
     SYSCALL_REGISTER(debug, SYS_DEBUG);
     SYSCALL_REGISTER(write, SYS_WRITE);
     SYSCALL_REGISTER(brk, SYS_BRK);
+    SYSCALL_REGISTER(fork, SYS_FORK);
   }
 
 }
