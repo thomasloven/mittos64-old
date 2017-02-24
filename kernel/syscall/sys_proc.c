@@ -3,6 +3,9 @@
 #include <thread.h>
 #include <scheduler.h>
 #include <string.h>
+#include <mem.h>
+#include <debug.h>
+#include <list.h>
 
 SYSCALL_DEF(fork)
 {
@@ -23,5 +26,41 @@ SYSCALL_DEF(fork)
 
   // Return new pid
   return new->pid;
+}
 
+__attribute__((noreturn)) SYSCALL_DEF(exit)
+{
+  SYSCALL_INIT(int, status);
+
+  process_t *proc = get_current_process();
+
+  process_exit(proc, status);
+
+  schedule();
+  debug_error("PANIC - This line should be unreachable (%s:%d)\n", __FILE__, __LINE__);
+  for(;;);
+}
+
+SYSCALL_DEF(wait)
+{
+  SYSCALL_INIT(int *, status);
+
+  process_t *proc = get_current_process();
+  int pid = 0;
+  while(!pid)
+  {
+    LIST_FOREACH(proc->children, process_t, p, siblings)
+    {
+      if(p->state == PROC_STATE_ZOMBIE)
+      {
+        pid = p->pid;
+        *status = p->status;
+        // Destroy the process
+        process_free(p);
+        break;
+      }
+    }
+    schedule();
+  }
+  return pid;
 }

@@ -42,3 +42,15 @@ SYSCALL_DEF(gettid)
   SYSCALL_INIT();
   return 0;
 }
+
+SYSCALL_DEF(exit_group)
+{
+  SYSCALL_INIT(int, result);
+  return kernel_syscall(SYS_EXIT, result);
+}
+
+SYSCALL_DEF(wait4)
+{
+  SYSCALL_INIT(int, pid, int *, result, int, options, void *, rusage);
+  return kernel_syscall(SYS_WAIT, result);
+}

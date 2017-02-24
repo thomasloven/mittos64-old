@@ -43,3 +43,5 @@ typedef long (*syscall_handler_t)(long num, long, long, long, long, long, long);
 SYSCALL_DECL(write);
 SYSCALL_DECL(brk);
 SYSCALL_DECL(fork);
+SYSCALL_DECL(exit);
+SYSCALL_DECL(wait);
