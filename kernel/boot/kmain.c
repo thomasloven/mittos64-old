@@ -11,6 +11,7 @@
 #include <elf.h>
 #include <syscall.h>
 #include <cpuid.h>
+#include <vfs.h>
 
 int kernel_execve(process_t *p, void *image, char *argv[], char *envp[]);
 int kmain(uint64_t multiboot_magic, void *multiboot_data)
@@ -36,6 +37,16 @@ int kmain(uint64_t multiboot_magic, void *multiboot_data)
   scheduler_insert(th);
 
   procmm_print_map(p1->mmap);
+  fs_mount(0, "/");
+  fs_mount(0, "/dev");
+  fs_mount(0, "/home/user/mnt/photos");
+
+
+  fs_namef("/");
+  fs_namef("/usr/local/bin/python");
+  fs_namef("/dev/tty0");
+  fs_namef("/home/thomas");
+  fs_namef("/home/user/mnt/photos/2016/june");
 
   asm("sti");
   debug_info("BOOT COMPLETE\n");

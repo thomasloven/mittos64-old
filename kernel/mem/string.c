@@ -1,6 +1,7 @@
 #include <string.h>
 #include <stdint.h>
 #include <stddef.h>
+#include <mem.h>
 
 // Standard function required by gcc
 // Just the naíve implementations for now
@@ -43,4 +44,25 @@ size_t strlen(const char *s)
   size_t len = 0;
   while(*s++) len++;
   return len;
+}
+
+int strncmp(const char *s1, const char *s2, size_t n)
+{
+  while(n && *s1 && (*s1==*s2))
+    s1++, s2++, n--;
+  return *(const unsigned char*)s1-*(const unsigned char*)s2;
+}
+
+int strcmp(const char *s1, const char *s2)
+{
+  while(*s1 && (*s1==*s2))
+    s1++, s2++;
+  return *(const unsigned char*)s1-*(const unsigned char*)s2;
+}
+
+char *strdup(const char *s)
+{
+  char *ret = kmalloc(strlen(s)+1);
+  memcpy(ret, s, strlen(s)+1);
+  return ret;
 }
