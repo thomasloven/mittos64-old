@@ -56,8 +56,15 @@ void syscall_init()
     memset(syscall_handlers, 0, 1024*sizeof(syscall_handler_t));
 
     SYSCALL_REGISTER(debug, SYS_DEBUG);
+    SYSCALL_REGISTER(open, SYS_OPEN);
+    SYSCALL_REGISTER(close, SYS_CLOSE);
+    SYSCALL_REGISTER(read, SYS_READ);
     SYSCALL_REGISTER(write, SYS_WRITE);
+    SYSCALL_REGISTER(isatty, SYS_ISATTY);
+    SYSCALL_REGISTER(seek, SYS_SEEK);
+
     SYSCALL_REGISTER(brk, SYS_BRK);
+
     SYSCALL_REGISTER(fork, SYS_FORK);
     SYSCALL_REGISTER(exit, SYS_EXIT);
     SYSCALL_REGISTER(wait, SYS_WAIT);

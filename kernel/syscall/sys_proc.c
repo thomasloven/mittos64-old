@@ -6,6 +6,7 @@
 #include <mem.h>
 #include <debug.h>
 #include <list.h>
+#include <vfs.h>
 
 SYSCALL_DEF(fork)
 {

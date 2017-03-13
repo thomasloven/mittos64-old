@@ -22,6 +22,7 @@ typedef struct dirent_st
 #define FS_FILE 0x1
 #define FS_DIR  0x2
 #define FS_PIPE 0x3
+#define FS_TTY  0x4
 
 typedef struct fs_driver_st
 {
@@ -56,3 +57,5 @@ void fs_mount(file_t *root, const char *path);
 void fs_umount(const char *path);
 
 file_t *fs_namef(const char *path);
+
+file_t debug_file;

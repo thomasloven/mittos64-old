@@ -30,23 +30,18 @@ int kmain(uint64_t multiboot_magic, void *multiboot_data)
 
   debug_info("Syscall enabled:%d\n", CPUID_FEATURE_SYSCALL);
 
+
+  fs_mount(0, "/");
+  fs_mount(&debug_file, "/dev/debug");
+
+  fs_write(&debug_file, "TESTING DEBUG FILE", 18, 0);
+
   process_t *p1 = process_spawn(0);
   char *args[] = {"init", "Hello, arg", "5", 0};
   char *env[] = {"OS=mittos64", 0};
+  p1->fp[1].file = fs_namef("/dev/debug");
   thread_t *th = exec_elf(p1, mboot_data.init, args, env);
   scheduler_insert(th);
-
-  procmm_print_map(p1->mmap);
-  fs_mount(0, "/");
-  fs_mount(0, "/dev");
-  fs_mount(0, "/home/user/mnt/photos");
-
-
-  fs_namef("/");
-  fs_namef("/usr/local/bin/python");
-  fs_namef("/dev/tty0");
-  fs_namef("/home/thomas");
-  fs_namef("/home/user/mnt/photos/2016/june");
 
   asm("sti");
   debug_info("BOOT COMPLETE\n");

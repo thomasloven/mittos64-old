@@ -7,6 +7,11 @@ int main(int argc, char **argv)
   (void) argc;
   (void) argv;
 
+
+  FILE *fp = fopen("/dev/debug", "w");
+  fprintf(fp, "Hello, filesystem!\n");
+
+
   for(;;);
   return 0;
 }

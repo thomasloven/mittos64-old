@@ -24,6 +24,16 @@ process_t *process_spawn(process_t *parent)
     LIST_APPEND(parent->children, proc, siblings);
     proc->mmap = procmm_new_map(proc, parent->mmap);
     spin_unlock(&parent->lock);
+    for(int i = 0; i < PROC_NUMFP; i++)
+    {
+      if(parent->fp[i].file)
+      {
+        proc->fp[i].file = fs_get(parent->fp[i].file);
+        proc->fp[i].pos = parent->fp[i].pos;
+        proc->fp[i].flags = parent->fp[i].flags;
+        fs_open(proc->fp[i].file, proc->fp[i].flags);
+      }
+    }
   } else {
     proc->mmap = procmm_new_map(proc, 0);
   }
@@ -75,6 +85,14 @@ void process_exit(process_t *proc, uint64_t status)
     LIST_REMOVE(proc->children, c, siblings);
     c->parent = init_proc;
     LIST_APPEND(init_proc->children, c, siblings);
+  }
+  for(int i = 0; i < PROC_NUMFP; i++)
+  {
+    if(proc->fp[i].file)
+    {
+      fs_close(proc->fp[i].file);
+      fs_put(proc->fp[i].file);
+    }
   }
   proc->state = PROC_STATE_ZOMBIE;
   spin_unlock(&proc->lock);

@@ -7,6 +7,9 @@ typedef struct process_st process_t;
 #include <cpu.h>
 #include <sync.h>
 #include <mem.h>
+#include <vfs.h>
+
+#define PROC_NUMFP 20
 
 struct procmm_mmap_st;
 typedef struct process_st
@@ -20,6 +23,11 @@ typedef struct process_st
   LIST(struct process_st, children);
   LIST(struct process_st, siblings);
   LIST(thread_t, threads);
+  struct {
+    file_t *file;
+    uint64_t flags;
+    uint64_t pos;
+  } fp[PROC_NUMFP];
 } process_t;
 
 #define PROC_STATE_READY 1
