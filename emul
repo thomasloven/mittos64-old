@@ -58,7 +58,7 @@ function main() {
   make all || exit 1
   util/build_iso.sh || exit 1
   echo > serial.log
-  emulator="qemu-system-x86_64 -cdrom mittos64.iso -serial file:serial.log -smp 4 ${EMULPARAM[@]}"
+  emulator="qemu-system-x86_64 -hda image.img -cdrom mittos64.iso -boot order=d -serial file:serial.log -smp 4 ${EMULPARAM[@]}"
   debugger=$(which x86_64-elf-linux-gdb)
 
   if [[ (-n ${EMULVNC}) ]]; then

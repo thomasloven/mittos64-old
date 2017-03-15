@@ -12,6 +12,7 @@
 #include <syscall.h>
 #include <cpuid.h>
 #include <vfs.h>
+#include <ata.h>
 
 int kernel_execve(process_t *p, void *image, char *argv[], char *envp[]);
 int kmain(uint64_t multiboot_magic, void *multiboot_data)
@@ -30,9 +31,10 @@ int kmain(uint64_t multiboot_magic, void *multiboot_data)
 
   debug_info("Syscall enabled:%d\n", CPUID_FEATURE_SYSCALL);
 
-
   fs_mount(0, "/");
   fs_mount(&debug_file, "/dev/debug");
+
+  ata_init();
 
   fs_write(&debug_file, "TESTING DEBUG FILE", 18, 0);
 
