@@ -34,7 +34,7 @@ int kmain(uint64_t multiboot_magic, void *multiboot_data)
   fs_mount(0, "/");
   fs_mount(&debug_file, "/dev/debug");
 
-  ata_init();
+  ata_fs_init();
 
   fs_write(&debug_file, "TESTING DEBUG FILE", 18, 0);
 
