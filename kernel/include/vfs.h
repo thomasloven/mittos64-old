@@ -59,3 +59,4 @@ void fs_umount(const char *path);
 file_t *fs_namef(const char *path);
 
 file_t debug_file;
+int pipe(file_t **reader, file_t **writer);

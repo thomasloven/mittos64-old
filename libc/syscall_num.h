@@ -14,3 +14,5 @@
 #define SYS_FORK  0x008
 #define SYS_EXIT  0x009
 #define SYS_WAIT  0x00A
+
+#define SYS_PIPE 0x00B

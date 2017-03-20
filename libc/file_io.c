@@ -69,3 +69,9 @@ SYSCALL_DEF(ioctl)
   kernel_debug("==> IOCTL - unsupported request:%lx\n", request);
   return -1;
 }
+
+SYSCALL_DEF(pipe)
+{
+  SYSCALL_INIT(int *, fd);
+  return kernel_syscall(SYS_PIPE, fd);
+}

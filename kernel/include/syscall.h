@@ -46,6 +46,7 @@ SYSCALL_DECL(read);
 SYSCALL_DECL(write);
 SYSCALL_DECL(isatty);
 SYSCALL_DECL(seek);
+SYSCALL_DECL(pipe);
 
 SYSCALL_DECL(brk);
 

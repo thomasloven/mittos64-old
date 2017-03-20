@@ -78,3 +78,59 @@ SYSCALL_DEF(seek)
 
   return p->fp[fd].pos;
 }
+
+SYSCALL_DEF(pipe)
+{
+  SYSCALL_INIT(int *, fd);
+  process_t *p = get_current_process();
+  file_t *r, *w;
+  pipe(&r, &w);
+
+  fd[0] = -1;
+  fd[1] = -1;
+
+  int i;
+  for(i = 0; i < PROC_NUMFP; i++)
+  {
+    if(!p->fp[i].file)
+    {
+      p->fp[i].file = fs_get(w);
+      fs_open(w,0);
+      fd[0] = i;
+      break;
+    }
+  }
+  if(i == PROC_NUMFP)
+    goto pipe_fail;
+  for(i = 0; i < PROC_NUMFP; i++)
+  {
+    if(!p->fp[i].file)
+    {
+      p->fp[i].file = fs_get(r);
+      fs_open(r,0);
+      fd[1] = i;
+      break;
+    }
+  }
+  if(i == PROC_NUMFP)
+    goto pipe_fail;
+
+  return 0;
+
+pipe_fail:
+  if(r)
+    kfree(r);
+  if(w)
+    kfree(w);
+  if(fd[0] != -1)
+  {
+    fs_put(p->fp[fd[0]].file);
+    p->fp[fd[0]].file = 0;
+  }
+  if(fd[1] != -1)
+  {
+    fs_put(p->fp[fd[1]].file);
+    p->fp[fd[1]].file = 0;
+  }
+  return -1;
+}

@@ -62,6 +62,7 @@ void syscall_init()
     SYSCALL_REGISTER(write, SYS_WRITE);
     SYSCALL_REGISTER(isatty, SYS_ISATTY);
     SYSCALL_REGISTER(seek, SYS_SEEK);
+    SYSCALL_REGISTER(pipe, SYS_PIPE);
 
     SYSCALL_REGISTER(brk, SYS_BRK);
 
