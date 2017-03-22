@@ -49,9 +49,6 @@ void apic_init()
   // Make sure the APIC base addres is mapped in kernel memory
   vmm_set_page(0, (uintptr_t)P2V(APIC_BASE), APIC_BASE, PAGE_PRESENT | PAGE_WRITE);
 
-  debug_info("APIC - ID: %x\n", APIC(R_ID));
-  debug_info("APIC - Version: %x\n", APIC(R_VERSION));
-
   uint8_t id = APIC(R_ID) >> 24;
   if(id <= 0)
     APIC(R_LDR) = 1 << (24 + id);

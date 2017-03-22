@@ -9,3 +9,8 @@ void apic_ack();
 #define APIC_INT_TYPE_FIXED 0x0
 #define APIC_INT_TYPE_INIT 0x5
 #define APIC_INT_TYPE_STARTUP 0x6
+
+
+void ioapic_init();
+void ioapic_mask(uint8_t irq);
+void ioapic_unmask(uint8_t irq);

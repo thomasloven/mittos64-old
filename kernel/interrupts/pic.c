@@ -13,6 +13,7 @@
 #define PIC_CMD_8086 0x01
 #define PIC_CMD_EOI 0x20
 
+unsigned int irq_map[] = {0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23};
 
 void pic_init()
 {
@@ -36,30 +37,4 @@ void pic_init()
   // Mask all interrupts
   outb(MPIC_DATA, 0xFF);
   outb(SPIC_DATA, 0xFF);
-}
-
-void pic_ack(uint8_t irq)
-{
-  if(irq >= 8)
-    outb(SPIC_CMD, PIC_CMD_EOI);
-  outb(MPIC_CMD, PIC_CMD_EOI);
-}
-
-void pic_mask(uint8_t irq)
-{
-  if(irq >= 8)
-  {
-    outb(SPIC_DATA, inb(SPIC_DATA) | 1 << (irq-8));
-  } else {
-    outb(MPIC_DATA, inb(MPIC_DATA) | 1 << irq);
-  }
-}
-void pic_unmask(uint8_t irq)
-{
-  if(irq >= 8)
-  {
-    outb(SPIC_DATA, inb(SPIC_DATA) & ~(1 << (irq-8)));
-  } else {
-    outb(MPIC_DATA, inb(MPIC_DATA) & ~(1 << irq));
-  }
 }

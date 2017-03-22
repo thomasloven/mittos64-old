@@ -4,6 +4,7 @@
 #include <mem.h>
 #include <string.h>
 #include <multiboot.h>
+#include <int.h>
 
 RSDP_st *find_rsdp()
 {
@@ -87,6 +88,7 @@ void parse_MADT(SDT_header *header)
         break;
       case 2: // Interrupt Source Override
         debug_info("ACPI - Interrupt source override %x->%x\n", f->ISO.irq, f->ISO.interrupt);
+        irq_map[f->ISO.irq] = f->ISO.interrupt;
         break;
       default:
         break;

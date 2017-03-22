@@ -87,14 +87,12 @@ struct idtr
 } __attribute__ ((packed));
 
 void pic_init();
-void pic_ack(uint8_t irq);
-void pic_mask(uint8_t irq);
-void pic_unmask(uint8_t irq);
+extern unsigned int irq_map[24];
 #define IRQ_INT(irq) (INT_IRQ0 + irq)
-#define IRQ(irq) (irq)
-#define IRQ_MASK(irq) pic_mask(irq)
-#define IRQ_UNMASK(irq) pic_unmask(irq)
-#define IRQ_ACK(irq) pic_ack(irq)
+#define IRQ(irq) (irq_map[irq])
+#define IRQ_MASK(irq) ioapic_mask(IRQ(irq))
+#define IRQ_UNMASK(irq) ioapic_unmask(IRQ(irq))
+#define IRQ_ACK(irq) apic_ack(IRQ(irq))
 
 #define IRQ_TIMER 0
 #define IRQ_KEYBOARD 1

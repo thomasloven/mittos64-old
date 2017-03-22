@@ -35,6 +35,7 @@ int kmain(uint64_t multiboot_magic, void *multiboot_data)
   pic_init();
   acpi_init();
   apic_init();
+  ioapic_init();
 
 
   process_t *p1 = process_spawn(0);
