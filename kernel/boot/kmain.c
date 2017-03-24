@@ -10,6 +10,7 @@
 #include <acpi.h>
 #include <apic.h>
 #include <sse.h>
+#include <timer.h>
 
 void thread_function()
 {
@@ -38,6 +39,7 @@ int kmain(uint64_t multiboot_magic, void *multiboot_data)
   apic_init();
   ioapic_init();
   sse_init();
+  pit_init();
 
 
   process_t *p1 = process_spawn(0);

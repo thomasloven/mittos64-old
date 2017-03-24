@@ -68,6 +68,7 @@
 
 #ifndef __ASSEMBLER__
 #include <stdint.h>
+#include <apic.h>
 
 struct int_gate_descriptor
 {
@@ -88,7 +89,7 @@ struct idtr
 
 void pic_init();
 extern unsigned int irq_map[24];
-#define IRQ_INT(irq) (INT_IRQ0 + irq)
+#define IRQ_INT(irq) (INT_IRQ0 + IRQ(irq))
 #define IRQ(irq) (irq_map[irq])
 #define IRQ_MASK(irq) ioapic_mask(IRQ(irq))
 #define IRQ_UNMASK(irq) ioapic_unmask(IRQ(irq))
