@@ -28,6 +28,7 @@ int kmain(uint64_t multiboot_magic, void *multiboot_data)
   pmm_init();
   cpu_init();
   pit_init();
+  asm("sti");
 
   debug_info("Syscall enabled:%d\n", CPUID_FEATURE_SYSCALL);
 
@@ -45,7 +46,6 @@ int kmain(uint64_t multiboot_magic, void *multiboot_data)
   thread_t *th = exec_elf(p1, mboot_data.init, args, env);
   scheduler_insert(th);
 
-  asm("sti");
   debug_info("BOOT COMPLETE\n");
   schedule();
   debug_error("PANIC - This line should be unreachable (%s:%d)\n", __FILE__, __LINE__);

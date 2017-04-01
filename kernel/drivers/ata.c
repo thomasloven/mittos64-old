@@ -19,9 +19,8 @@ int ata_wait_status(int bus)
   return inb(ATA_STATUS(bus));
 }
 
-int ata_send_command(ata_cmd_t *cmd, int wait)
+int ata_send_command(ata_cmd_t *cmd)
 {
-  (void)wait;
   outb(ATA_DEVICE(cmd->bus), cmd->device | (cmd->lba_sep[3] & 0xF));
   ata_wait_status(cmd->bus);
 
@@ -82,7 +81,7 @@ void init_drive(ata_drive *drive)
     drive->atapi = 1;
     command.command = ATA_CMD_IDENTIFY_PACKET;
   }
-  if(!ata_send_command(&command, 1))
+  if(!ata_send_command(&command))
     return;
 
   // Read IDENTIFY information
@@ -109,7 +108,7 @@ int ata_read_block(ata_drive *drive, uint64_t lba, void *buffer)
       .command = ATA_CMD_READ_SECTORS,
     };
 
-    int status = ata_send_command(&command,0);
+    int status = ata_send_command(&command);
     if(status & (ATA_DF | ATA_ERR) || !(status & ATA_DRQ))
     {
       retries--;
@@ -136,7 +135,11 @@ int ata_write_block(ata_drive *drive, uint64_t lba, void *buffer)
     .device = 0xE0 | drive->ms | ((lba >> 24) & 0xF),
     .command = ATA_CMD_WRITE_SECTORS,
   };
-  ata_send_command(&command, 0);
+  int status = ata_send_command(&command);
+  if(status & ATA_ERR)
+  {
+    debug_error("An error occurred\n");
+  }
   uint16_t *buf = buffer;
   for(int i=0; i<256; i++)
   {
