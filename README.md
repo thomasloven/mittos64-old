@@ -1,6 +1,8 @@
 MITTOS64
 ========
 
+# ALSO SEE [mittos64](https://github.com/thomasloven/mittos64) FOR A NEWER VERSION OF THIS
+
 By Thomas Lovén - 2016
 
 For development, start by sourcing `activate.sh`
